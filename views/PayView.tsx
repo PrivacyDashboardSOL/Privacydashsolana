@@ -52,7 +52,7 @@ const PayView: React.FC = () => {
         SystemProgram.transfer({
           fromPubkey: publicKey,
           toPubkey: new PublicKey(request.creator),
-          lamports: request.amount * LAMPORTS_PER_SOL,
+          lamports: Math.round(request.amount * LAMPORTS_PER_SOL),
         })
       );
 
@@ -64,12 +64,14 @@ const PayView: React.FC = () => {
         ...latestBlockhash
       }, 'confirmed');
 
-      await MockBackend.markPaid(request.id, signature, publicKey.toBase58());
+      await MockBackend.markPaid(request.id, String(signature), publicKey.toBase58());
       
       setConfirmed(true);
     } catch (err: any) {
-      console.error("Payment failed", err);
-      setError(err.message || "Transaction relay rejected.");
+      // Robust error logging: Only log the message to avoid circular structure errors
+      const errorMsg = err?.message || "Transaction relay rejected.";
+      console.error("Payment failed:", errorMsg);
+      setError(errorMsg);
     } finally {
       setPaying(false);
     }

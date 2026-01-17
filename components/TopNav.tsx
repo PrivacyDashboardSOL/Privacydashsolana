@@ -45,16 +45,17 @@ const TopNav: React.FC<TopNavProps> = ({ profile, searchQuery, onSearch }) => {
   };
 
   return (
-    <nav className="h-24 px-12 flex items-center justify-between border-b border-white/5 bg-black/20 backdrop-blur-xl fixed top-0 w-full z-50">
-      <div className="flex items-center gap-12">
+    <nav className="h-24 px-8 lg:px-12 flex items-center justify-between border-b border-white/5 bg-black/20 backdrop-blur-xl fixed top-0 w-full z-50">
+      {/* Left Section: Logo + Navigation */}
+      <div className="flex items-center gap-6 lg:gap-10">
         <div className="flex items-center gap-3 shrink-0">
           <div className="w-8 h-8 bg-[#00D1FF] rounded-lg shadow-[0_0_20px_rgba(0,209,255,0.4)] flex items-center justify-center">
             <i className="fa-solid fa-ghost text-black text-sm"></i>
           </div>
-          <span className="font-black text-xl tracking-tighter italic hidden xl:block">PRIVACY DASH</span>
+          <span className="font-black text-lg tracking-tighter italic hidden xl:block">PRIVACY DASH</span>
         </div>
 
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-4 lg:gap-7">
           {navItems.map((item) => (
             <NavLink
               key={item.path}
@@ -65,16 +66,17 @@ const TopNav: React.FC<TopNavProps> = ({ profile, searchQuery, onSearch }) => {
                 }`
               }
             >
-              <span className="opacity-50">{item.icon}</span>
-              <span className="hidden lg:block">{item.name}</span>
+              <span className="opacity-50 text-[12px]">{item.icon}</span>
+              <span className="hidden lg:block uppercase">{item.name}</span>
             </NavLink>
           ))}
         </div>
       </div>
 
-      <div className="flex items-center gap-6 flex-1 justify-end max-w-4xl">
-        <div className="relative w-full max-w-xs group hidden md:block">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#00D1FF] transition-colors">
+      {/* Right Section: Search + Utilities + Wallet */}
+      <div className="flex items-center gap-4 lg:gap-6 flex-1 justify-end">
+        <div className="relative w-full max-w-[220px] lg:max-w-[280px] group hidden md:block ml-4">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#00D1FF] transition-colors text-[10px]">
             {ICONS.Search}
           </div>
           <input 
@@ -82,22 +84,22 @@ const TopNav: React.FC<TopNavProps> = ({ profile, searchQuery, onSearch }) => {
             placeholder="FILTER TERMINAL..."
             value={searchQuery}
             onChange={(e) => onSearch(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-[10px] font-black tracking-widest text-white focus:border-[#00D1FF] outline-none transition-all placeholder:text-slate-700"
+            className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-[9px] font-black tracking-widest text-white focus:border-[#00D1FF] outline-none transition-all placeholder:text-slate-700"
           />
         </div>
 
         <button 
           onClick={handleExportBackup}
-          className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-[#00D1FF] hover:border-[#00D1FF]/30 transition-all group"
+          className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-[#00D1FF] hover:border-[#00D1FF]/30 transition-all group shrink-0"
           title="Export System Backup"
         >
           {ICONS.Export}
         </button>
 
-        <div className="h-8 w-px bg-white/10 mx-2"></div>
+        <div className="h-8 w-px bg-white/10 mx-1 shrink-0"></div>
 
         {connected && publicKey ? (
-          <div className="relative">
+          <div className="relative shrink-0">
             <button 
               onClick={() => setShowProfile(!showProfile)}
               className="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-xl border border-white/10 hover:border-[#00D1FF]/50 transition-all"
@@ -138,7 +140,7 @@ const TopNav: React.FC<TopNavProps> = ({ profile, searchQuery, onSearch }) => {
         ) : (
           <button 
             onClick={handleConnect}
-            className="px-6 py-2.5 bg-[#00D1FF] text-black font-black text-xs italic tracking-tighter hover:scale-105 transition-all rounded-xl shadow-[0_0_20px_rgba(0,209,255,0.3)]"
+            className="px-6 py-2.5 bg-[#00D1FF] text-black font-black text-xs italic tracking-tighter hover:scale-105 transition-all rounded-xl shadow-[0_0_20px_rgba(0,209,255,0.3)] shrink-0"
           >
             INITIALIZE PHANTOM
           </button>

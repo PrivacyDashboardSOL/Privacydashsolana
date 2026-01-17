@@ -4,12 +4,29 @@ import { SolanaPayRequest, RequestStatus, Stats, UserProfile } from '../types';
 const STORAGE_KEY = 'privacy_dash_v1_mainnet';
 const PROFILES_KEY = 'privacy_dash_profiles';
 
+// Helper to ensure we only store plain objects
+function safeJsonStringify(data: any): string {
+  try {
+    return JSON.stringify(data);
+  } catch (e) {
+    console.warn("Serialization warning, using fallback for circularity");
+    const seen = new WeakSet();
+    return JSON.stringify(data, (key, value) => {
+      if (typeof value === "object" && value !== null) {
+        if (seen.has(value)) return "[Circular]";
+        seen.add(value);
+      }
+      return value;
+    });
+  }
+}
+
 function getStore(): SolanaPayRequest[] {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : [];
   } catch (e) {
-    console.error("Failed to parse store", e);
+    console.error("Failed to parse store");
     return [];
   }
 }
@@ -23,7 +40,7 @@ function saveStore(requests: SolanaPayRequest[]) {
       tokenMint: String(r.tokenMint),
       expiresAt: String(r.expiresAt),
       createdAt: String(r.createdAt),
-      status: r.status,
+      status: r.status as RequestStatus,
       label: String(r.label),
       icon: String(r.icon),
       ciphertext: String(r.ciphertext),
@@ -31,9 +48,9 @@ function saveStore(requests: SolanaPayRequest[]) {
       payer: r.payer ? String(r.payer) : undefined,
       creator: String(r.creator),
     }));
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
+    localStorage.setItem(STORAGE_KEY, safeJsonStringify(sanitized));
   } catch (e) {
-    console.error("Failed to save store", e);
+    console.error("Failed to save store safely");
   }
 }
 
@@ -42,7 +59,7 @@ function getProfiles(): Record<string, UserProfile> {
     const data = localStorage.getItem(PROFILES_KEY);
     return data ? JSON.parse(data) : {};
   } catch (e) {
-    console.error("Failed to parse profiles", e);
+    console.error("Failed to parse profiles");
     return {};
   }
 }
@@ -57,21 +74,22 @@ function saveProfile(profile: UserProfile) {
       lastLoginAt: String(profile.lastLoginAt),
       balance: Number(profile.balance),
     };
-    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+    localStorage.setItem(PROFILES_KEY, safeJsonStringify(profiles));
   } catch (e) {
-    console.error("Failed to save profile", e);
+    console.error("Failed to save profile safely");
   }
 }
 
 export const MockBackend = {
   getProfile: async (pubkey: string): Promise<UserProfile> => {
     const profiles = getProfiles();
-    if (profiles[pubkey]) return profiles[pubkey];
+    const key = String(pubkey);
+    if (profiles[key]) return profiles[key];
     
     const newProfile: UserProfile = {
-      pubkey: String(pubkey),
+      pubkey: key,
       lastLoginAt: new Date().toISOString(),
-      balance: 5.42, // Mock initial balance
+      balance: 5.42,
     };
     saveProfile(newProfile);
     return newProfile;
