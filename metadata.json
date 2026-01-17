@@ -1,0 +1,7 @@
+{
+  "name": "Privacy Dash - Solana Pay",
+  "description": "A privacy-focused Solana Pay dashboard with locally encrypted invoice details, optimized exclusively for Phantom Wallet on Mainnet.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
