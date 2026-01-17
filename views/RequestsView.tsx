@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { MockBackend } from '../services/mockBackend';
 import { SolanaPayRequest, RequestStatus, UserProfile } from '../types';
+import { ICONS } from '../constants';
 
 interface RequestsViewProps {
   searchQuery: string;
@@ -13,16 +14,18 @@ const RequestsView: React.FC<RequestsViewProps> = ({ searchQuery, profile }) => 
   const [requests, setRequests] = useState<SolanaPayRequest[]>([]);
   const [filter, setFilter] = useState<RequestStatus | 'ALL'>('ALL');
   const [loading, setLoading] = useState(true);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const loadRequests = async () => {
+    if (profile) {
+      const r = await MockBackend.getAllRequests(profile.pubkey);
+      setRequests(r);
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
-    async function load() {
-      if (profile) {
-        const r = await MockBackend.getAllRequests(profile.pubkey);
-        setRequests(r);
-      }
-      setLoading(false);
-    }
-    load();
+    loadRequests();
   }, [profile]);
 
   if (!profile) return <Navigate to="/" />;
@@ -33,6 +36,20 @@ const RequestsView: React.FC<RequestsViewProps> = ({ searchQuery, profile }) => 
                           r.id.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
+
+  const handleCopyLink = (id: string) => {
+    const url = `${window.location.origin}${window.location.pathname}#/pay/${id}`;
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleCancel = async (id: string) => {
+    if (confirm("Terminate this relay request? This cannot be undone.")) {
+      await MockBackend.cancelRequest(id);
+      loadRequests();
+    }
+  };
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-12 pb-20 animate-in fade-in duration-700">
@@ -59,10 +76,10 @@ const RequestsView: React.FC<RequestsViewProps> = ({ searchQuery, profile }) => 
 
       <div className="space-y-4">
         {filteredRequests.map(req => (
-          <div key={req.id} className="premium-panel light-sweep p-8 flex items-center justify-between group relative overflow-hidden">
+          <div key={req.id} className="premium-panel light-sweep p-8 flex flex-col lg:flex-row items-center justify-between group relative overflow-hidden gap-8">
              <div className="absolute top-0 left-0 w-1 h-full bg-[#00D1FF] opacity-0 group-hover:opacity-100 transition-opacity"></div>
              
-             <div className="flex items-center gap-8">
+             <div className="flex items-center gap-8 w-full lg:w-auto">
                 <StatusIcon status={req.status} />
                 <div className="flex items-center gap-6 border-l border-white/5 pl-8">
                     <div className="w-16 h-16 rounded-2xl bg-white/5 overflow-hidden border border-white/10 group-hover:border-[#00D1FF]/40 transition-all">
@@ -75,17 +92,38 @@ const RequestsView: React.FC<RequestsViewProps> = ({ searchQuery, profile }) => 
                 </div>
              </div>
 
-             <div className="flex items-center gap-12">
+             <div className="flex items-center justify-between lg:justify-end gap-12 w-full lg:w-auto">
                 <div className="text-right">
                     <p className="text-3xl font-black text-white italic tracking-tighter">{req.amount} <span className="text-xs text-[#00D1FF]">SOL</span></p>
                     <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Transaction Weight</p>
                 </div>
-                <Link 
-                    to={`/pay/${req.id}`}
-                    className="px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white hover:bg-[#00D1FF] hover:text-black transition-all uppercase tracking-widest italic"
-                >
-                    Initialize
-                </Link>
+                
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => handleCopyLink(req.id)}
+                    className="w-12 h-12 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-[#00D1FF] transition-all group"
+                    title="Copy Payment Link"
+                  >
+                    {copiedId === req.id ? <i className="fa-solid fa-check text-[#00D1FF]"></i> : ICONS.Copy}
+                  </button>
+
+                  <Link 
+                      to={`/pay/${req.id}`}
+                      className="px-8 py-3 bg-[#00D1FF]/10 border border-[#00D1FF]/30 rounded-xl text-[10px] font-black text-[#00D1FF] hover:bg-[#00D1FF] hover:text-black transition-all uppercase tracking-widest italic flex items-center gap-3"
+                  >
+                      <i className="fa-solid fa-eye"></i> View
+                  </Link>
+
+                  {req.status === RequestStatus.PENDING && (
+                    <button 
+                      onClick={() => handleCancel(req.id)}
+                      className="w-12 h-12 flex items-center justify-center rounded-xl bg-red-500/5 border border-red-500/10 text-slate-600 hover:text-red-500 hover:border-red-500/40 transition-all"
+                      title="Cancel Request"
+                    >
+                      <i className="fa-solid fa-trash-can"></i>
+                    </button>
+                  )}
+                </div>
              </div>
           </div>
         ))}

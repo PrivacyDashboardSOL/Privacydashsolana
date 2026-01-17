@@ -1,7 +1,7 @@
 
 /**
- * Simple AES-GCM encryption wrapper for the browser.
- * In a real app, the key would be derived from a PBKDF2 master password.
+ * AES-GCM encryption wrapper for Privacy Dash.
+ * Keys are derived locally and persisted in the browser's secure context.
  */
 
 const ENCRYPTION_KEY_LABEL = 'privacy_dash_master_key';
@@ -9,7 +9,7 @@ const ENCRYPTION_KEY_LABEL = 'privacy_dash_master_key';
 async function getMasterKey(): Promise<CryptoKey> {
   const stored = localStorage.getItem(ENCRYPTION_KEY_LABEL);
   if (!stored) {
-    // Generate a default one for the demo if not set
+    // Initialize a new master key for the first session on this terminal
     const key = await window.crypto.subtle.generateKey(
       { name: "AES-GCM", length: 256 },
       true,

@@ -59,7 +59,11 @@ const App: React.FC = () => {
   return (
     <HashRouter>
       <div className="flex flex-col min-h-screen bg-[#070A0F]">
-        <TopNav profile={profile} />
+        <TopNav 
+          profile={profile} 
+          searchQuery={searchQuery}
+          onSearch={setSearchQuery}
+        />
         
         <main className="flex-1 mt-24 overflow-y-auto px-12 py-10">
           <Routes>
@@ -74,8 +78,11 @@ const App: React.FC = () => {
                       <h2 className="text-6xl font-black italic tracking-tighter text-white">READY TO ACCESS?</h2>
                       <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">ENCRYPTED DATA TERMINAL REQUIRES PHANTOM HANDSHAKE</p>
                     </div>
-                    <div className="p-1 px-8 bg-white/5 rounded-full border border-white/5 text-[10px] font-black text-[#00D1FF] uppercase tracking-[0.4em]">
-                      Awaiting Signature Input
+                    
+                    <div className="flex flex-col items-center gap-6">
+                       <div className="p-1 px-8 bg-white/5 rounded-full border border-white/5 text-[10px] font-black text-[#00D1FF] uppercase tracking-[0.4em] mb-4">
+                        {isAuthenticating ? 'Processing Relay...' : 'Awaiting Signature Input'}
+                      </div>
                     </div>
                   </div>
             } />

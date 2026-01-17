@@ -31,6 +31,7 @@ const CreateRequestView: React.FC<CreateRequestViewProps> = ({ profile }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
     try {
       const privateData: PrivateInvoiceData = {
@@ -40,7 +41,11 @@ const CreateRequestView: React.FC<CreateRequestViewProps> = ({ profile }) => {
       };
       const ciphertext = await encrypt(privateData);
       await MockBackend.createRequest({
-        label, icon, amount, tokenMint: 'SOL', ciphertext,
+        label, 
+        icon, 
+        amount: Number(amount), 
+        tokenMint: 'SOL', 
+        ciphertext,
       }, profile.pubkey);
       navigate('/requests');
     } catch (err) {
@@ -62,60 +67,78 @@ const CreateRequestView: React.FC<CreateRequestViewProps> = ({ profile }) => {
           <section className="premium-panel p-10 space-y-10">
             <h3 className="text-xs font-black tracking-[0.5em] text-[#00D1FF] uppercase border-b border-white/5 pb-4">01 // Public Metadata</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              <InputGroup label="Display Name" value={label} onChange={val => setLabel(val.toUpperCase())} placeholder="e.g. INVOICE_01" />
-              <InputGroup label="Network Icon URL" value={icon} onChange={setIcon} placeholder="https://..." type="url" />
-              <InputGroup label="SOL Value" value={amount} onChange={val => setAmount(Number(val))} type="number" step="0.001" />
+              <InputGroup label="Display Name" value={label} onChange={(val: string) => setLabel(val.toUpperCase())} placeholder="e.g. INVOICE_01" />
+              <InputGroup label="Network Icon URL" value={icon} onChange={(val: string) => setIcon(val)} placeholder="https://..." type="url" />
+              <InputGroup label="SOL Value" value={amount} onChange={(val: string) => setAmount(Number(val))} type="number" step="0.001" />
             </div>
           </section>
 
           <section className="premium-panel p-10 space-y-10 border-l-2 border-l-purple-500/50">
-            <h3 className="text-xs font-black tracking-[0.5em] text-purple-400 uppercase border-b border-white/5 pb-4">02 // Encrypted Storage</h3>
+            <h3 className="text-xs font-black tracking-[0.5em] text-purple-400 uppercase border-b border-white/5 pb-4">02 // Encrypted Payload</h3>
             <div className="space-y-8">
-              <InputGroup label="Internal Module Title" value={title} onChange={val => setTitle(val.toUpperCase())} placeholder="SECRET_PROJECT_NAME" />
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Itemized Details</label>
+              <InputGroup label="Private Title" value={title} onChange={(val: string) => setTitle(val)} placeholder="Visible only to you after payment" />
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Line Items</label>
+                  <button type="button" onClick={addLineItem} className="text-[10px] font-black text-[#00D1FF] hover:underline uppercase">Add Item</button>
+                </div>
                 {lineItems.map((item, idx) => (
                   <div key={idx} className="flex gap-4">
-                    <input type="text" placeholder="RESOURCE DESCRIPTION" value={item.description} onChange={e => updateLineItem(idx, 'description', e.target.value.toUpperCase())} className="flex-1 bg-white/5 border border-white/10 rounded-xl p-4 text-xs font-black text-white focus:border-[#00D1FF] outline-none" />
-                    <input type="number" placeholder="SOL" value={item.amount} onChange={e => updateLineItem(idx, 'amount', Number(e.target.value))} className="w-32 bg-white/5 border border-white/10 rounded-xl p-4 text-xs font-black text-white focus:border-[#00D1FF] outline-none" />
+                    <div className="flex-[3]">
+                      <input 
+                        type="text" 
+                        placeholder="Description"
+                        value={item.description}
+                        onChange={(e) => updateLineItem(idx, 'description', e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 px-5 py-3 rounded-xl text-white font-bold text-xs outline-none"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <input 
+                        type="number" 
+                        step="0.001"
+                        placeholder="Amount"
+                        value={item.amount}
+                        onChange={(e) => updateLineItem(idx, 'amount', Number(e.target.value))}
+                        className="w-full bg-white/5 border border-white/10 px-5 py-3 rounded-xl text-[#00D1FF] font-bold text-xs outline-none"
+                      />
+                    </div>
                   </div>
                 ))}
-                <button type="button" onClick={addLineItem} className="text-[10px] font-black text-[#00D1FF] hover:accent-glow uppercase tracking-widest">+ Append Entry</button>
+              </div>
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">System Notes</label>
+                <textarea 
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="w-full h-32 bg-white/5 border border-white/10 px-5 py-4 rounded-xl text-white font-bold text-xs outline-none"
+                />
               </div>
             </div>
           </section>
         </div>
 
         <div className="space-y-8">
-          <div className="premium-panel p-10 sticky top-32 border-[#00D1FF]/20 shadow-[0_0_50px_rgba(0,209,255,0.05)]">
-            <h3 className="text-xs font-black tracking-[0.5em] text-slate-500 uppercase mb-10">Relay Preview</h3>
-            <div className="flex flex-col items-center gap-6 mb-10">
-              <div className="w-32 h-32 rounded-3xl bg-white/5 border border-white/10 overflow-hidden shadow-2xl">
-                <img src={icon} className="w-full h-full object-cover" alt="" />
+          <div className="premium-panel p-10 space-y-8 sticky top-32">
+            <h3 className="text-xs font-black tracking-[0.5em] text-slate-500 uppercase border-b border-white/5 pb-4">Finalization</h3>
+            <div className="space-y-6">
+              <div className="flex justify-between items-center bg-white/5 p-5 rounded-2xl border border-white/5">
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Protocol</span>
+                <span className="text-[10px] font-bold text-[#00D1FF] italic">SOLANA_PAY_V1</span>
               </div>
-              <div className="text-center">
-                <h4 className="text-3xl font-black italic text-white tracking-tighter">{label}</h4>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Solana Pay Standard</p>
-              </div>
-            </div>
-
-            <div className="space-y-4 border-t border-white/5 pt-8 mb-10">
-              <div className="flex justify-between items-center">
-                <span className="text-[10px] font-black text-slate-500 uppercase">Transfer Weight</span>
-                <span className="text-2xl font-black italic text-[#00D1FF] accent-glow">{amount} SOL</span>
-              </div>
-              <div className="flex justify-between items-center text-[10px] font-black">
-                <span className="text-slate-500">PROVIDER</span>
-                <span className="text-white">PHANTOM RELAY</span>
+              <div className="flex justify-between items-center bg-white/5 p-5 rounded-2xl border border-white/5">
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Security</span>
+                <span className="text-[10px] font-bold text-purple-400 italic">AES-256-GCM</span>
               </div>
             </div>
-
             <button 
+              type="submit" 
               disabled={loading}
-              className="w-full py-5 bg-[#00D1FF] text-black font-black italic text-lg rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-[0_10px_40px_rgba(0,209,255,0.2)]"
+              className="w-full py-6 bg-[#00D1FF] text-black rounded-2xl font-black italic text-xl hover:scale-[1.02] transition-all shadow-[0_15px_40px_rgba(0,209,255,0.2)] flex items-center justify-center gap-4 disabled:opacity-50"
             >
-              {loading ? <i className="fa-solid fa-circle-notch animate-spin"></i> : "FINALIZE & DEPLOY"}
+              {loading ? <i className="fa-solid fa-circle-notch animate-spin"></i> : <><i className="fa-solid fa-cloud-arrow-up"></i> DEPLOY RELAY</>}
             </button>
+            <p className="text-[9px] text-slate-600 font-bold uppercase text-center leading-relaxed">Executing this command will commit the public metadata to the local index and encrypt the payload using your master key.</p>
           </div>
         </div>
       </form>
@@ -123,18 +146,20 @@ const CreateRequestView: React.FC<CreateRequestViewProps> = ({ profile }) => {
   );
 };
 
-const InputGroup = ({ label, value, onChange, placeholder, type = "text", step }: any) => (
-  <div className="space-y-2">
+// Fixed: Added missing InputGroup helper component
+const InputGroup = ({ label, value, onChange, placeholder, type = 'text', step }: any) => (
+  <div className="space-y-3">
     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{label}</label>
     <input 
-      type={type} 
+      type={type}
       step={step}
-      value={value} 
-      onChange={e => onChange(e.target.value)}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white font-black italic text-sm focus:border-[#00D1FF] outline-none transition-all placeholder:text-slate-700"
+      className="w-full bg-white/5 border border-white/10 px-5 py-4 rounded-xl text-white font-bold text-sm outline-none focus:border-[#00D1FF]/50 transition-all"
     />
   </div>
 );
 
+// Fixed: Added default export
 export default CreateRequestView;

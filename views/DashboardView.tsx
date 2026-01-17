@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { MockBackend } from '../services/mockBackend';
-import { Stats, SolanaPayRequest, UserProfile } from '../types';
+import { Stats, SolanaPayRequest, UserProfile, RequestStatus } from '../types';
 import { Link } from 'react-router-dom';
 import { AreaChart, Area, XAxis, ResponsiveContainer } from 'recharts';
+import { ICONS } from '../constants';
 
 interface DashboardViewProps {
   profile: UserProfile;
@@ -13,6 +14,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ profile }) => {
   const [stats, setStats] = useState<Stats | null>(null);
   const [recent, setRecent] = useState<SolanaPayRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -27,6 +29,15 @@ const DashboardView: React.FC<DashboardViewProps> = ({ profile }) => {
     load();
   }, [profile]);
 
+  const handleCopyLink = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `${window.location.origin}${window.location.pathname}#/pay/${id}`;
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   if (loading || !stats) return (
     <div className="h-full flex items-center justify-center">
       <div className="animate-spin text-4xl text-[#00D1FF]"><i className="fa-solid fa-circle-notch"></i></div>
@@ -35,19 +46,19 @@ const DashboardView: React.FC<DashboardViewProps> = ({ profile }) => {
 
   const chartData = [
     { name: '01', val: 10 }, { name: '02', val: 35 }, { name: '03', val: 20 },
-    { name: '04', val: 55 }, { name: '05', val: 30 }, { name: '06', val: stats.totalCollected * 10 }
+    { name: '04', val: 55 }, { name: '05', val: 30 }, { name: '06', val: Math.max(stats.totalCollected * 10, 40) }
   ];
 
   return (
     <div className="max-w-[1600px] mx-auto space-y-12 pb-20 animate-in fade-in duration-700 slide-in-from-bottom-5">
       {/* KPI Stats Strip */}
-      <div className="flex items-center gap-12 border-b border-white/5 pb-8">
+      <div className="flex flex-wrap items-center gap-8 md:gap-12 border-b border-white/5 pb-8">
         <KPIItem label="SESSIONS" val="ACTIVE" color="text-green-400" />
-        <div className="w-px h-8 bg-white/5"></div>
+        <div className="hidden md:block w-px h-8 bg-white/5"></div>
         <KPIItem label="NETWORK" val="MAINNET" color="text-[#00D1FF]" />
-        <div className="w-px h-8 bg-white/5"></div>
+        <div className="hidden md:block w-px h-8 bg-white/5"></div>
         <KPIItem label="THROUGHPUT" val="100%" color="text-white" />
-        <div className="w-px h-8 bg-white/5"></div>
+        <div className="hidden md:block w-px h-8 bg-white/5"></div>
         <KPIItem label="ENCRYPTION" val="AES-256" color="text-purple-400" />
       </div>
 
@@ -108,7 +119,10 @@ const DashboardView: React.FC<DashboardViewProps> = ({ profile }) => {
       {/* Activity and Detail Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          <h3 className="text-xs font-black tracking-[0.5em] text-slate-500 uppercase">Recent System Activity</h3>
+          <div className="flex justify-between items-center">
+            <h3 className="text-xs font-black tracking-[0.5em] text-slate-500 uppercase">Recent System Activity</h3>
+            <Link to="/requests" className="text-[10px] font-black text-[#00D1FF] hover:underline uppercase tracking-widest">View All Records</Link>
+          </div>
           <div className="space-y-4">
             {recent.map(req => (
               <Link key={req.id} to={`/pay/${req.id}`} className="premium-panel light-sweep p-6 flex items-center justify-between group">
@@ -121,11 +135,21 @@ const DashboardView: React.FC<DashboardViewProps> = ({ profile }) => {
                     <p className="text-[10px] font-bold text-slate-500 tracking-widest">{req.id.toUpperCase()} // STATUS: {req.status}</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-2xl font-black text-white tracking-tighter italic">{req.amount} <span className="text-xs text-slate-500">SOL</span></p>
-                  <span className={`text-[9px] font-black px-3 py-1 rounded-md border ${req.status === 'PAID' ? 'border-green-500/30 text-green-400 bg-green-500/5' : 'border-[#00D1FF]/30 text-[#00D1FF] bg-[#00D1FF]/5'}`}>
-                    {req.status}
-                  </span>
+                <div className="flex items-center gap-8">
+                  <div className="text-right">
+                    <p className="text-2xl font-black text-white tracking-tighter italic">{req.amount} <span className="text-xs text-slate-500">SOL</span></p>
+                    <span className={`text-[9px] font-black px-3 py-1 rounded-md border ${req.status === RequestStatus.PAID ? 'border-green-500/30 text-green-400 bg-green-500/5' : 'border-[#00D1FF]/30 text-[#00D1FF] bg-[#00D1FF]/5'}`}>
+                      {req.status}
+                    </span>
+                  </div>
+                  {req.status === RequestStatus.PENDING && (
+                    <button 
+                      onClick={(e) => handleCopyLink(e, req.id)}
+                      className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-slate-500 hover:text-[#00D1FF] hover:border-[#00D1FF]/40 transition-all"
+                    >
+                      {copiedId === req.id ? <i className="fa-solid fa-check text-green-400"></i> : ICONS.Copy}
+                    </button>
+                  )}
                 </div>
               </Link>
             ))}
@@ -140,7 +164,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ profile }) => {
                 <div className="w-20 h-20 bg-[#00D1FF]/10 rounded-full flex items-center justify-center text-3xl text-[#00D1FF] accent-glow mb-4">
                   <i className="fa-solid fa-lock"></i>
                 </div>
-                <h6 className="font-black text-white italic tracking-tighter">LOCAL ENCRYPTION ENGAGED</h6>
+                <h6 className="font-black text-white italic tracking-tighter uppercase">Vault Engaged</h6>
                 <p className="text-[10px] text-slate-500 font-bold uppercase mt-2 text-center leading-relaxed">Invoice descriptors are isolated<br/>within the browser's sandbox.</p>
               </div>
               <div className="space-y-4">
