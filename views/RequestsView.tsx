@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link, Navigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { MockBackend } from '../services/mockBackend';
 import { SolanaPayRequest, RequestStatus, UserProfile } from '../types';
 
@@ -30,109 +30,91 @@ const RequestsView: React.FC<RequestsViewProps> = ({ searchQuery, profile }) => 
   const filteredRequests = requests.filter(r => {
     const matchesFilter = filter === 'ALL' || r.status === filter;
     const matchesSearch = r.label.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          r.amount.toString().includes(searchQuery) ||
-                          r.status.toLowerCase().includes(searchQuery.toLowerCase());
+                          r.id.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
-  const copyPayLink = (id: string) => {
-    const url = `${window.location.origin}/#/pay/${id}`;
-    navigator.clipboard.writeText(url);
-    alert("Payment link copied to clipboard!");
-  };
-
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="max-w-[1400px] mx-auto space-y-12 pb-20 animate-in fade-in duration-700">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-white/5 pb-10">
         <div>
-          <h2 className="text-3xl font-bold text-slate-900">Requests</h2>
-          <p className="text-slate-500">Manage your active and completed payment requests.</p>
+            <h2 className="text-6xl font-black italic tracking-tighter text-white">RECORDS_TERMINAL</h2>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em] mt-2">Archives of relay transmissions</p>
         </div>
         
-        <div className="flex bg-white p-1 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="flex gap-3 bg-white/5 p-1.5 rounded-2xl border border-white/10">
           {(['ALL', ...Object.values(RequestStatus)] as const).map((s) => (
             <button
               key={s}
               onClick={() => setFilter(s)}
-              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-                filter === s ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:bg-slate-50'
+              className={`px-6 py-2 rounded-xl text-[10px] font-black italic transition-all ${
+                filter === s ? 'bg-[#00D1FF] text-black shadow-[0_0_15px_rgba(0,209,255,0.4)]' : 'text-slate-500 hover:text-white'
               }`}
             >
-              {s.charAt(0) + s.slice(1).toLowerCase()}
+              {s}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-slate-50 border-b border-slate-100">
-              <tr>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Status</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Label</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Amount</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Created</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Expires</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredRequests.map(req => (
-                <tr key={req.id} className="hover:bg-slate-50 transition-colors group">
-                  <td className="px-6 py-4">
-                    <StatusBadge status={req.status} />
-                  </td>
-                  <td className="px-6 py-4 font-semibold text-slate-900">{req.label}</td>
-                  <td className="px-6 py-4 font-bold text-slate-900">{req.amount} {req.tokenMint}</td>
-                  <td className="px-6 py-4 text-sm text-slate-500">{new Date(req.createdAt).toLocaleDateString()}</td>
-                  <td className="px-6 py-4 text-sm text-slate-500">{new Date(req.expiresAt).toLocaleDateString()}</td>
-                  <td className="px-6 py-4 text-right space-x-2">
-                    <button 
-                      onClick={() => copyPayLink(req.id)}
-                      className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
-                      title="Copy Link"
-                    >
-                      <i className="fa-solid fa-link"></i>
-                    </button>
-                    <Link 
-                      to={`/pay/${req.id}`}
-                      className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all inline-block"
-                      title="View Page"
-                    >
-                      <i className="fa-solid fa-up-right-from-square"></i>
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {filteredRequests.length === 0 && (
-            <div className="p-20 text-center space-y-4">
-              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-300 text-2xl">
-                <i className="fa-solid fa-magnifying-glass"></i>
-              </div>
-              <p className="text-slate-400 font-medium">No requests found matching your criteria</p>
+      <div className="space-y-4">
+        {filteredRequests.map(req => (
+          <div key={req.id} className="premium-panel light-sweep p-8 flex items-center justify-between group relative overflow-hidden">
+             <div className="absolute top-0 left-0 w-1 h-full bg-[#00D1FF] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+             
+             <div className="flex items-center gap-8">
+                <StatusIcon status={req.status} />
+                <div className="flex items-center gap-6 border-l border-white/5 pl-8">
+                    <div className="w-16 h-16 rounded-2xl bg-white/5 overflow-hidden border border-white/10 group-hover:border-[#00D1FF]/40 transition-all">
+                        <img src={req.icon} className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                        <h4 className="text-2xl font-black italic text-white group-hover:text-[#00D1FF] transition-all">{req.label.toUpperCase()}</h4>
+                        <p className="text-[10px] font-bold text-slate-500 tracking-widest mt-1">ID: {req.id.toUpperCase()} // ATTACHED: {new Date(req.createdAt).toLocaleDateString()}</p>
+                    </div>
+                </div>
+             </div>
+
+             <div className="flex items-center gap-12">
+                <div className="text-right">
+                    <p className="text-3xl font-black text-white italic tracking-tighter">{req.amount} <span className="text-xs text-[#00D1FF]">SOL</span></p>
+                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Transaction Weight</p>
+                </div>
+                <Link 
+                    to={`/pay/${req.id}`}
+                    className="px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white hover:bg-[#00D1FF] hover:text-black transition-all uppercase tracking-widest italic"
+                >
+                    Initialize
+                </Link>
+             </div>
+          </div>
+        ))}
+        {filteredRequests.length === 0 && (
+          <div className="p-32 text-center space-y-8 bg-white/2 rounded-3xl border border-dashed border-white/5">
+            <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mx-auto text-3xl text-slate-800">
+                <i className="fa-solid fa-radar"></i>
             </div>
-          )}
-        </div>
+            <p className="text-slate-600 font-black italic uppercase tracking-[0.4em]">No signatures matching frequency</p>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-const StatusBadge: React.FC<{status: RequestStatus}> = ({ status }) => {
-  const styles = {
-    [RequestStatus.PENDING]: 'bg-yellow-100 text-yellow-700',
-    [RequestStatus.PAID]: 'bg-green-100 text-green-700',
-    [RequestStatus.EXPIRED]: 'bg-slate-100 text-slate-700',
-    [RequestStatus.CANCELLED]: 'bg-red-100 text-red-700',
-  };
-  return (
-    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${styles[status]}`}>
-      {status}
-    </span>
-  );
+const StatusIcon: React.FC<{status: RequestStatus}> = ({ status }) => {
+    const icons = {
+        [RequestStatus.PENDING]: { icon: 'fa-clock', color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' },
+        [RequestStatus.PAID]: { icon: 'fa-check-circle', color: 'text-green-500 bg-green-500/10 border-green-500/20' },
+        [RequestStatus.EXPIRED]: { icon: 'fa-ban', color: 'text-slate-600 bg-slate-950 border-white/10' },
+        [RequestStatus.CANCELLED]: { icon: 'fa-xmark', color: 'text-red-500 bg-red-500/10 border-red-500/20' },
+    };
+    const { icon, color } = icons[status];
+    return (
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg border ${color}`}>
+            <i className={`fa-solid ${icon}`}></i>
+        </div>
+    );
 };
 
 export default RequestsView;

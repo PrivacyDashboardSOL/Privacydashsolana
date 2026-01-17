@@ -48,7 +48,6 @@ const PayView: React.FC = () => {
     setPaying(true);
     
     try {
-      // 1. Create Real Transaction
       const transaction = new Transaction().add(
         SystemProgram.transfer({
           fromPubkey: publicKey,
@@ -57,26 +56,20 @@ const PayView: React.FC = () => {
         })
       );
 
-      // 2. Set Reference for Solana Pay tracking
-      // In a full implementation, we'd add the reference to the transaction instruction
-      
-      // 3. Send Transaction through Phantom
       const signature = await sendTransaction(transaction, connection);
       
-      // 4. Confirm Transaction on Mainnet
       const latestBlockhash = await connection.getLatestBlockhash();
       await connection.confirmTransaction({
         signature,
         ...latestBlockhash
       }, 'confirmed');
 
-      // 5. Mark as paid in our dashboard backend
       await MockBackend.markPaid(request.id, signature, publicKey.toBase58());
       
       setConfirmed(true);
     } catch (err: any) {
       console.error("Payment failed", err);
-      setError(err.message || "Transaction rejected or failed.");
+      setError(err.message || "Transaction relay rejected.");
     } finally {
       setPaying(false);
     }
@@ -90,67 +83,85 @@ const PayView: React.FC = () => {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 space-y-4">
-      <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-      <p className="text-slate-400 font-bold tracking-tight">Accessing Solana Mainnet...</p>
+    <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-6 space-y-6">
+      <div className="w-16 h-16 border-2 border-[#00D1FF] border-t-transparent rounded-full animate-spin accent-glow"></div>
+      <p className="text-slate-500 font-black italic uppercase tracking-[0.4em] text-xs">Pinging Solana Relay...</p>
     </div>
   );
   
-  if (!request) return <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-red-500 font-bold">Request Invalid or Expired</div>;
+  if (!request) return (
+    <div className="min-h-screen bg-transparent flex items-center justify-center p-6">
+      <div className="premium-panel p-10 text-center space-y-4 border-red-500/20">
+        <i className="fa-solid fa-triangle-exclamation text-red-500 text-4xl mb-4"></i>
+        <h2 className="text-2xl font-black italic text-white uppercase">Relay Failed</h2>
+        <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Request sequence has expired or is invalid.</p>
+        <Link to="/" className="block pt-6 text-[#00D1FF] font-black uppercase tracking-widest text-[10px]">Return to Base</Link>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-200">
+    <div className="min-h-screen bg-transparent flex items-center justify-center p-6 pb-20">
+      <div className="max-w-xl w-full animate-in fade-in slide-in-from-bottom-5 duration-700">
+        <div className="premium-panel light-sweep overflow-hidden border-[#00D1FF]/20 shadow-[0_0_60px_rgba(0,209,255,0.05)]">
           {confirmed ? (
-            <div className="p-10 text-center space-y-8 animate-in fade-in zoom-in duration-500">
-              <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto text-4xl">
+            <div className="p-12 text-center space-y-10 animate-in fade-in zoom-in-95 duration-500">
+              <div className="w-24 h-24 bg-green-500/10 text-green-400 rounded-full flex items-center justify-center mx-auto text-4xl border border-green-500/30 accent-glow">
                 <i className="fa-solid fa-check-double"></i>
               </div>
-              <div>
-                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Payment Complete</h2>
-                <p className="text-slate-500 mt-2 font-medium">Transaction has been confirmed on the Solana blockchain.</p>
+              <div className="space-y-2">
+                <h2 className="text-5xl font-black italic text-white tracking-tighter uppercase">Transfer Complete</h2>
+                <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Transmission verified on Mainnet-Beta</p>
               </div>
-              <div className="bg-slate-50 p-4 rounded-2xl text-[10px] font-mono text-slate-400 text-left break-all border border-slate-100">
-                Signature: {request.signature}
+              
+              <div className="bg-black/40 p-5 rounded-2xl text-[10px] font-mono text-slate-500 text-left break-all border border-white/5 space-y-2">
+                <p className="text-green-500 font-black uppercase tracking-widest text-[8px]">TX_SIGNATURE</p>
+                <p className="leading-relaxed">{request.signature || 'N/A'}</p>
               </div>
+
               <div className="pt-4 space-y-4">
-                <button onClick={handleUnlock} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2">
-                  <i className="fa-solid fa-unlock"></i> Unlock Invoice Details
+                <button 
+                  onClick={handleUnlock} 
+                  className="w-full py-5 bg-[#00D1FF] text-black rounded-2xl font-black italic text-lg hover:scale-105 transition-all shadow-[0_10px_30px_rgba(0,209,255,0.2)] flex items-center justify-center gap-3"
+                >
+                  <i className="fa-solid fa-unlock"></i> Unlock Secure Info
                 </button>
-                <Link to="/" className="block text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors">Back to Dashboard</Link>
+                <Link to="/" className="block text-xs font-black text-slate-600 hover:text-white transition-colors uppercase tracking-widest italic pt-4">Return to Dashboard</Link>
               </div>
             </div>
           ) : (
             <>
-              <div className="bg-slate-900 p-10 text-white text-center relative overflow-hidden">
-                <div className="absolute top-4 right-6 px-3 py-1 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-white/70 border border-white/10">Mainnet</div>
-                <img src={request.icon} className="w-24 h-24 rounded-3xl mx-auto mb-6 border-4 border-white/10 object-cover shadow-2xl relative z-10" alt="" />
-                <h3 className="text-2xl font-black relative z-10 tracking-tight">{request.label}</h3>
-                <p className="text-slate-400 text-sm mt-1 font-medium">Requested via Solana Pay</p>
+              <div className="p-12 text-center relative overflow-hidden bg-white/2 border-b border-white/5">
+                <div className="absolute top-6 right-8 px-4 py-1.5 bg-[#00D1FF]/10 rounded-full text-[9px] font-black uppercase tracking-widest text-[#00D1FF] border border-[#00D1FF]/30">Live_Mainnet</div>
+                <div className="w-28 h-28 rounded-3xl mx-auto mb-8 border border-white/10 overflow-hidden shadow-2xl group relative">
+                    <img src={request.icon} className="w-full h-full object-cover" alt="" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                </div>
+                <h3 className="text-4xl font-black italic text-white tracking-tighter uppercase">{request.label}</h3>
+                <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mt-2">Solana Pay Protocol Relay</p>
               </div>
 
-              <div className="p-10 space-y-8">
+              <div className="p-12 space-y-10">
                 <div className="text-center">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Amount</p>
-                  <h2 className="text-6xl font-black text-slate-900 tracking-tighter">{request.amount} <span className="text-xl text-slate-300">SOL</span></h2>
+                  <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.5em] mb-4">Transfer weight</p>
+                  <h2 className="text-7xl font-black text-white tracking-tighter italic">{request.amount} <span className="text-2xl text-[#00D1FF]">SOL</span></h2>
                 </div>
 
-                <div className="space-y-4 py-6 border-y border-slate-50">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-medium">Network</span>
-                    <span className="font-bold text-slate-900">Solana Mainnet</span>
+                <div className="space-y-5 py-8 border-y border-white/5">
+                  <div className="flex justify-between items-center text-[10px] font-black tracking-widest">
+                    <span className="text-slate-600 uppercase">Target Address</span>
+                    <span className="font-mono text-slate-400">{request.creator.slice(0, 10)}...{request.creator.slice(-10)}</span>
                   </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-medium">Recipient</span>
-                    <span className="font-mono text-[11px] text-slate-400">{request.creator.slice(0, 8)}...{request.creator.slice(-8)}</span>
+                  <div className="flex justify-between items-center text-[10px] font-black tracking-widest">
+                    <span className="text-slate-600 uppercase">Relay Path</span>
+                    <span className="text-white italic">MAINNET-BETA // PHANTOM</span>
                   </div>
                 </div>
 
                 {error && (
-                  <div className="p-4 bg-red-50 rounded-2xl border border-red-100 flex gap-3 animate-in fade-in slide-in-from-top-2">
-                    <i className="fa-solid fa-circle-exclamation text-red-500 mt-1"></i>
-                    <p className="text-xs text-red-600 font-bold leading-relaxed">{error}</p>
+                  <div className="p-5 bg-red-500/10 rounded-2xl border border-red-500/20 flex gap-4 animate-in slide-in-from-top-2">
+                    <i className="fa-solid fa-triangle-exclamation text-red-500 mt-0.5"></i>
+                    <p className="text-[10px] text-red-400 font-black uppercase leading-relaxed italic">{error}</p>
                   </div>
                 )}
 
@@ -158,54 +169,56 @@ const PayView: React.FC = () => {
                   <button 
                     onClick={handlePay} 
                     disabled={paying} 
-                    className="w-full py-5 bg-indigo-600 text-white rounded-[1.5rem] font-black text-lg hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-500/30 flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-50"
+                    className="w-full py-6 bg-[#00D1FF] text-black rounded-2xl font-black italic text-xl hover:scale-105 transition-all shadow-[0_15px_40px_rgba(0,209,255,0.2)] flex items-center justify-center gap-4 disabled:opacity-40"
                   >
-                    {paying ? <i className="fa-solid fa-circle-notch animate-spin"></i> : <><i className="fa-solid fa-ghost"></i> Pay with Phantom</>}
+                    {paying ? <i className="fa-solid fa-circle-notch animate-spin"></i> : <><i className="fa-solid fa-bolt"></i> Initiate Transfer</>}
                   </button>
                 ) : (
                   <button 
                     onClick={handleConnect}
-                    className="w-full py-5 bg-slate-900 text-white rounded-[1.5rem] font-black text-lg hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20 flex items-center justify-center gap-3 active:scale-[0.98]"
+                    className="w-full py-6 bg-white/5 border border-white/10 text-white rounded-2xl font-black italic text-xl hover:bg-white/10 transition-all flex items-center justify-center gap-4"
                   >
-                    <i className="fa-solid fa-wallet"></i> Connect Wallet
+                    <i className="fa-solid fa-wallet"></i> Handshake Required
                   </button>
                 )}
 
-                <div className="bg-indigo-50 p-5 rounded-3xl flex gap-3 border border-indigo-100/50">
-                  <i className="fa-solid fa-shield-check text-indigo-400 mt-0.5 text-lg"></i>
-                  <p className="text-[11px] text-indigo-700 leading-relaxed font-semibold">Standard Solana Pay Protocol. The transaction is handled securely by your Phantom wallet.</p>
+                <div className="bg-white/2 p-6 rounded-2xl flex gap-4 border border-white/5">
+                  <i className="fa-solid fa-shield-halved text-[#00D1FF] text-xl opacity-50"></i>
+                  <p className="text-[10px] text-slate-500 leading-relaxed font-bold uppercase">Standard Solana Pay Protocol logic is engaged. Transaction signing is isolated within your Phantom session.</p>
                 </div>
               </div>
             </>
           )}
 
           {privateData && (
-            <div className="p-8 bg-purple-50 border-t border-purple-100 animate-in slide-in-from-bottom-4 duration-500">
-               <h4 className="font-black text-purple-900 text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
-                 <i className="fa-solid fa-receipt"></i> Private Invoice
+            <div className="p-10 bg-purple-500/5 border-t border-purple-500/20 animate-in slide-in-from-bottom-6 duration-700">
+               <h4 className="font-black text-purple-400 text-[10px] uppercase tracking-[0.5em] mb-6 flex items-center gap-3">
+                 <i className="fa-solid fa-file-invoice"></i> Private Module Data
                </h4>
-               <div className="bg-white p-6 rounded-3xl shadow-sm space-y-4 border border-purple-100">
-                 <h5 className="font-bold text-slate-800">{privateData.title}</h5>
-                 <div className="space-y-3 border-t border-slate-50 pt-4">
+               <div className="premium-panel p-8 space-y-6 bg-black/40 border-purple-500/10">
+                 <h5 className="font-black italic text-xl text-white tracking-tight">{privateData.title.toUpperCase()}</h5>
+                 <div className="space-y-4 border-t border-white/5 pt-6">
                    {privateData.items.map((it, i) => (
-                     <div key={i} className="flex justify-between text-xs font-bold">
-                       <span className="text-slate-500">{it.description}</span>
-                       <span className="text-slate-900">{it.amount} SOL</span>
+                     <div key={i} className="flex justify-between text-xs font-black italic">
+                       <span className="text-slate-500 uppercase">{it.description}</span>
+                       <span className="text-[#00D1FF]">{it.amount} SOL</span>
                      </div>
                    ))}
                  </div>
                  {privateData.notes && (
-                   <div className="text-[10px] text-slate-400 font-medium italic pt-2 border-t border-slate-50">
-                     Note: {privateData.notes}
+                   <div className="text-[10px] text-slate-500 font-bold italic pt-4 border-t border-white/5 leading-relaxed">
+                     RELAY_NOTES: {privateData.notes}
                    </div>
                  )}
                </div>
             </div>
           )}
         </div>
-        <div className="mt-8 flex items-center justify-center gap-2 opacity-30">
-           <i className="fa-solid fa-lock text-[10px]"></i>
-           <p className="text-center text-[10px] font-black text-slate-900 uppercase tracking-[0.3em]">Privacy Dash Secured</p>
+        
+        <div className="mt-12 flex items-center justify-center gap-4 opacity-10">
+           <div className="h-px bg-white w-12"></div>
+           <p className="text-[9px] font-black text-white uppercase tracking-[0.6em]">Privacy Dash Secured</p>
+           <div className="h-px bg-white w-12"></div>
         </div>
       </div>
     </div>

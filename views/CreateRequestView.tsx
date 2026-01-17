@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { encrypt } from '../services/crypto';
 import { MockBackend } from '../services/mockBackend';
-import { MOCK_TOKENS } from '../constants';
 import { PrivateInvoiceData, UserProfile } from '../types';
 
 interface CreateRequestViewProps {
@@ -14,13 +13,9 @@ const CreateRequestView: React.FC<CreateRequestViewProps> = ({ profile }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   
-  // Public
-  const [label, setLabel] = useState('Payment for Consulting');
+  const [label, setLabel] = useState('SERVICE_ALPHA');
   const [icon, setIcon] = useState('https://picsum.photos/id/1/200');
-  const [amount, setAmount] = useState<number>(1.5);
-  const [token, setToken] = useState(MOCK_TOKENS[0].mint);
-  
-  // Private
+  const [amount, setAmount] = useState<number>(0.05);
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
   const [lineItems, setLineItems] = useState<{description: string, amount: number}[]>([{ description: '', amount: 0 }]);
@@ -44,122 +39,102 @@ const CreateRequestView: React.FC<CreateRequestViewProps> = ({ profile }) => {
         notes,
       };
       const ciphertext = await encrypt(privateData);
-      const req = await MockBackend.createRequest({
+      await MockBackend.createRequest({
         label, icon, amount, tokenMint: 'SOL', ciphertext,
       }, profile.pubkey);
       navigate('/requests');
     } catch (err) {
-      alert("Error creating request");
+      console.error("Transmission relay failed", err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-8">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-slate-900">Create Request</h2>
-        <p className="text-slate-500">Configure public payment metadata and private invoice details.</p>
+    <div className="max-w-[1400px] mx-auto pb-20 animate-in fade-in slide-in-from-bottom-5 duration-700">
+      <div className="mb-12 border-b border-white/5 pb-8">
+        <h2 className="text-6xl font-black italic tracking-tighter text-white">INITIALIZE RELAY</h2>
+        <p className="text-sm font-black text-slate-500 uppercase tracking-[0.4em] mt-2">CONFIGURE ASSET PARAMETERS AND PAYLOAD</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          {/* Public Fields */}
-          <section className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-              <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                <i className="fa-solid fa-eye"></i>
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-800">Public Fields</h3>
-                <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Visible to wallets & block explorers</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Display Label</label>
-                <input type="text" value={label} onChange={e => setLabel(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all" />
-                <p className="text-[10px] text-slate-400">e.g., Company Name or Service Category</p>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Icon URL</label>
-                <input type="url" value={icon} onChange={e => setIcon(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Amount</label>
-                <input type="number" step="0.01" value={amount} onChange={e => setAmount(Number(e.target.value))} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all" />
-              </div>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="lg:col-span-2 space-y-12">
+          <section className="premium-panel p-10 space-y-10">
+            <h3 className="text-xs font-black tracking-[0.5em] text-[#00D1FF] uppercase border-b border-white/5 pb-4">01 // Public Metadata</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <InputGroup label="Display Name" value={label} onChange={val => setLabel(val.toUpperCase())} placeholder="e.g. INVOICE_01" />
+              <InputGroup label="Network Icon URL" value={icon} onChange={setIcon} placeholder="https://..." type="url" />
+              <InputGroup label="SOL Value" value={amount} onChange={val => setAmount(Number(val))} type="number" step="0.001" />
             </div>
           </section>
 
-          {/* Private Fields */}
-          <section className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-              <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-                <i className="fa-solid fa-lock"></i>
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-800">Private Fields</h3>
-                <p className="text-xs text-purple-400 font-bold uppercase tracking-wider">Encrypted locally & stored as ciphertext</p>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Internal Title</label>
-                <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Website Design - Phase 1" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all" />
-              </div>
+          <section className="premium-panel p-10 space-y-10 border-l-2 border-l-purple-500/50">
+            <h3 className="text-xs font-black tracking-[0.5em] text-purple-400 uppercase border-b border-white/5 pb-4">02 // Encrypted Storage</h3>
+            <div className="space-y-8">
+              <InputGroup label="Internal Module Title" value={title} onChange={val => setTitle(val.toUpperCase())} placeholder="SECRET_PROJECT_NAME" />
               <div className="space-y-4">
-                <label className="text-sm font-bold text-slate-700 block">Line Items</label>
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Itemized Details</label>
                 {lineItems.map((item, idx) => (
                   <div key={idx} className="flex gap-4">
-                    <input type="text" placeholder="Description" value={item.description} onChange={e => updateLineItem(idx, 'description', e.target.value)} className="flex-1 px-4 py-2 rounded-xl border border-slate-100 outline-none" />
-                    <input type="number" placeholder="Amt" value={item.amount} onChange={e => updateLineItem(idx, 'amount', Number(e.target.value))} className="w-24 px-4 py-2 rounded-xl border border-slate-100 outline-none" />
+                    <input type="text" placeholder="RESOURCE DESCRIPTION" value={item.description} onChange={e => updateLineItem(idx, 'description', e.target.value.toUpperCase())} className="flex-1 bg-white/5 border border-white/10 rounded-xl p-4 text-xs font-black text-white focus:border-[#00D1FF] outline-none" />
+                    <input type="number" placeholder="SOL" value={item.amount} onChange={e => updateLineItem(idx, 'amount', Number(e.target.value))} className="w-32 bg-white/5 border border-white/10 rounded-xl p-4 text-xs font-black text-white focus:border-[#00D1FF] outline-none" />
                   </div>
                 ))}
-                <button type="button" onClick={addLineItem} className="text-xs font-bold text-indigo-600 hover:text-indigo-700">+ Add Line Item</button>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Private Notes</label>
-                <textarea value={notes} onChange={e => setNotes(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 h-24 outline-none"></textarea>
+                <button type="button" onClick={addLineItem} className="text-[10px] font-black text-[#00D1FF] hover:accent-glow uppercase tracking-widest">+ Append Entry</button>
               </div>
             </div>
           </section>
         </div>
 
-        {/* Sidebar Preview */}
-        <div className="space-y-6">
-          <div className="bg-slate-900 rounded-3xl p-6 text-white sticky top-24 shadow-2xl">
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Payment Preview</h4>
-            <div className="bg-white rounded-2xl p-6 text-slate-900 space-y-6">
-              <div className="flex flex-col items-center gap-4">
-                <img src={icon} className="w-16 h-16 rounded-2xl object-cover shadow-lg" alt="" />
-                <h5 className="font-bold text-lg text-center">{label}</h5>
+        <div className="space-y-8">
+          <div className="premium-panel p-10 sticky top-32 border-[#00D1FF]/20 shadow-[0_0_50px_rgba(0,209,255,0.05)]">
+            <h3 className="text-xs font-black tracking-[0.5em] text-slate-500 uppercase mb-10">Relay Preview</h3>
+            <div className="flex flex-col items-center gap-6 mb-10">
+              <div className="w-32 h-32 rounded-3xl bg-white/5 border border-white/10 overflow-hidden shadow-2xl">
+                <img src={icon} className="w-full h-full object-cover" alt="" />
               </div>
-              <div className="py-4 border-y border-slate-100 space-y-3">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-500">Total</span>
-                  <span className="font-black text-xl text-indigo-600">{amount} SOL</span>
-                </div>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-500">Wallet Support</span>
-                  <span className="font-bold flex items-center gap-1"><i className="fa-solid fa-ghost"></i> Phantom</span>
-                </div>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-500">Creator</span>
-                  <span className="font-mono text-[9px] text-slate-400">{profile.pubkey.slice(0, 10)}...</span>
-                </div>
+              <div className="text-center">
+                <h4 className="text-3xl font-black italic text-white tracking-tighter">{label}</h4>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Solana Pay Standard</p>
               </div>
-              <button disabled={loading} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2">
-                {loading ? <i className="fa-solid fa-circle-notch animate-spin"></i> : <><i className="fa-solid fa-qrcode"></i> Generate Link</>}
-              </button>
             </div>
+
+            <div className="space-y-4 border-t border-white/5 pt-8 mb-10">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-black text-slate-500 uppercase">Transfer Weight</span>
+                <span className="text-2xl font-black italic text-[#00D1FF] accent-glow">{amount} SOL</span>
+              </div>
+              <div className="flex justify-between items-center text-[10px] font-black">
+                <span className="text-slate-500">PROVIDER</span>
+                <span className="text-white">PHANTOM RELAY</span>
+              </div>
+            </div>
+
+            <button 
+              disabled={loading}
+              className="w-full py-5 bg-[#00D1FF] text-black font-black italic text-lg rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-[0_10px_40px_rgba(0,209,255,0.2)]"
+            >
+              {loading ? <i className="fa-solid fa-circle-notch animate-spin"></i> : "FINALIZE & DEPLOY"}
+            </button>
           </div>
         </div>
       </form>
     </div>
   );
 };
+
+const InputGroup = ({ label, value, onChange, placeholder, type = "text", step }: any) => (
+  <div className="space-y-2">
+    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{label}</label>
+    <input 
+      type={type} 
+      step={step}
+      value={value} 
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white font-black italic text-sm focus:border-[#00D1FF] outline-none transition-all placeholder:text-slate-700"
+    />
+  </div>
+);
 
 export default CreateRequestView;

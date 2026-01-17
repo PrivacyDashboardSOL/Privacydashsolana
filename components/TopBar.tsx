@@ -27,7 +27,6 @@ const TopBar: React.FC<TopBarProps> = ({
       const phantom = wallets.find(w => w.adapter.name === 'Phantom');
       if (phantom) {
         await select(phantom.adapter.name);
-        // The wallet provider auto-connects or we can call connect()
         await connect();
       } else {
         window.open('https://phantom.app/', '_blank');
@@ -37,81 +36,71 @@ const TopBar: React.FC<TopBarProps> = ({
     }
   };
 
-  const shortAddress = profile ? `${profile.pubkey.slice(0, 4)}...${profile.pubkey.slice(-4)}` : 
-                       publicKey ? `${publicKey.toBase58().slice(0, 4)}...${publicKey.toBase58().slice(-4)}` : '';
-
   return (
-    <header className="h-20 border-b border-slate-200 bg-white px-8 flex items-center justify-between shrink-0 sticky top-0 z-50">
-      <div className="flex-1 max-w-xl relative group">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
-          {ICONS.Search}
+    <header className="h-20 bg-slate-900 border-b-4 border-slate-800 px-10 flex items-center justify-between shrink-0 sticky top-0 z-50">
+      <div className="flex items-center gap-6">
+        <h2 className="text-2xl font-black italic text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-tighter">
+            COMMAND CENTER
+        </h2>
+        <div className="h-8 w-[2px] bg-slate-700 bevel-border"></div>
+        <div className="relative w-96 group">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                {ICONS.Search}
+            </div>
+            <input 
+                type="text"
+                placeholder="TERMINAL SEARCH..."
+                className="w-full pl-10 pr-4 py-2 bg-slate-950 border-2 border-slate-700 focus:border-[#2D6BFF] outline-none text-xs font-black tracking-widest text-white transition-all"
+                value={searchQuery}
+                onChange={(e) => onSearch(e.target.value)}
+            />
         </div>
-        <input 
-          type="text"
-          placeholder="Search requests by label, amount, or status..."
-          className="w-full pl-10 pr-4 py-2 bg-slate-100 border-transparent border focus:border-indigo-500 rounded-xl outline-none transition-all text-sm font-medium"
-          value={searchQuery}
-          onChange={(e) => onSearch(e.target.value)}
-        />
       </div>
 
-      <div className="flex items-center gap-4">
-        <div className="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-200 bg-green-50 text-green-700">
-          MAINNET
+      <div className="flex items-center gap-6">
+        <div className="flex flex-col items-end">
+            <span className="text-[10px] font-black text-slate-500 tracking-widest uppercase">Network Status</span>
+            <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
+                <span className="text-xs font-black text-white italic">MAINNET-BETA</span>
+            </div>
         </div>
 
+        <div className="h-10 w-[2px] bg-slate-700 bevel-border"></div>
+
         {connected && publicKey ? (
-          <div className="relative">
-            <button 
-              onClick={() => setShowMenu(!showMenu)}
-              className="flex items-center gap-3 pl-4 pr-2 py-2 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition-all group"
-            >
-              <div className="text-left">
-                <p className="text-xs font-black text-slate-900 leading-tight">{shortAddress}</p>
-                <p className="text-[10px] font-bold text-slate-400">
-                  {profile ? `${profile.balance.toFixed(2)} SOL` : 'Authenticated'}
-                </p>
-              </div>
-              <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
-                <i className="fa-solid fa-ghost"></i>
-              </div>
-            </button>
-
-            {showMenu && (
-              <div className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-200 z-50">
-                <div className="p-4 border-b border-slate-50 mb-2">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Authenticated Phantom</p>
-                  <p className="text-xs font-mono font-medium text-slate-900 break-all leading-relaxed">{publicKey.toBase58()}</p>
-                </div>
+            <div className="relative">
                 <button 
-                  onClick={() => { setShowMenu(false); disconnect(); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-red-600 hover:bg-red-50 transition-all"
+                    onClick={() => setShowMenu(!showMenu)}
+                    className="flex items-center gap-4 px-4 py-2 bg-slate-800 border-2 border-slate-700 hover:border-[#2D6BFF] transition-all group bevel-border"
                 >
-                  <i className="fa-solid fa-right-from-bracket"></i> Logout Phantom
+                    <div className="text-right">
+                        <p className="text-xs font-black text-white leading-tight">AUTH: {publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-4)}</p>
+                        <p className="text-[10px] font-bold text-[#2D6BFF]">CRYPTO ASSETS LOADED</p>
+                    </div>
+                    <div className="w-8 h-8 bg-slate-700 flex items-center justify-center text-white border border-slate-500">
+                        <i className="fa-solid fa-user-secret"></i>
+                    </div>
                 </button>
-              </div>
-            )}
-          </div>
+                {showMenu && (
+                    <div className="absolute right-0 mt-2 w-64 bg-slate-900 border-4 border-slate-800 shadow-2xl p-4 z-50">
+                        <button 
+                            onClick={() => disconnect()}
+                            className="w-full py-3 bg-red-900/50 border-2 border-red-700 text-white font-black italic text-xs hover:bg-red-800 transition-all uppercase tracking-widest"
+                        >
+                            Deactivate Session
+                        </button>
+                    </div>
+                )}
+            </div>
         ) : (
-          <div className="flex items-center gap-4">
-            {isAuthenticating && (
-              <div className="flex items-center gap-2 text-indigo-600">
-                <i className="fa-solid fa-circle-notch animate-spin"></i>
-                <span className="text-xs font-bold uppercase tracking-wider">Signing...</span>
-              </div>
-            )}
             <button 
-              onClick={handleConnect}
-              className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 active:scale-95"
+                onClick={handleConnect}
+                className="px-8 py-3 bg-[#2D6BFF] text-white font-black italic tracking-tighter hover:bg-[#1e5ae6] transition-all bevel-border shadow-[0_4px_10px_rgba(0,0,0,0.3)] active:translate-y-1"
             >
-              <i className="fa-solid fa-ghost"></i> Connect Phantom
+                INITIALIZE PHANTOM
             </button>
-          </div>
         )}
-
-        <button className="p-2.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all">
-          {ICONS.Export}
-        </button>
       </div>
     </header>
   );

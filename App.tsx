@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
-import Sidebar from './components/Sidebar';
-import TopBar from './components/TopBar';
+import TopNav from './components/TopNav';
 import DashboardView from './views/DashboardView';
 import CreateRequestView from './views/CreateRequestView';
 import RequestsView from './views/RequestsView';
@@ -20,13 +19,11 @@ const App: React.FC = () => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
-  // Prevent context errors during initial load
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    // Only attempt login if connected and no profile exists
     if (connected && publicKey && !profile && !isAuthenticating) {
       handleLogin();
     } else if (!connected && profile) {
@@ -38,23 +35,19 @@ const App: React.FC = () => {
     if (!publicKey || !signMessage) return;
     setIsAuthenticating(true);
     try {
-      // Professional Phantom Signature Request (No "Simulated" text)
       const message = 
-        `Welcome to Privacy Dash\n\n` +
-        `This request is to verify your identity and unlock your private dashboard. No transaction or fees are involved.\n\n` +
-        `Account: ${publicKey.toBase58()}\n` +
-        `Domain: ${window.location.hostname}\n` +
-        `Issued At: ${new Date().toISOString()}`;
+        `ACCESS GRANTED: PRIVACY DASH COMMAND\n\n` +
+        `AUTHENTICATION TOKEN REQUIRED FOR SESSION INITIATION.\n\n` +
+        `ACCOUNT ID: ${publicKey.toBase58()}\n` +
+        `TIMESTAMP: ${Date.now()}`;
       
       const encoded = new TextEncoder().encode(message);
       await signMessage(encoded);
       
-      // Fetch authenticated profile
       const userProfile = await MockBackend.getProfile(publicKey.toBase58());
       setProfile(userProfile);
     } catch (err) {
-      console.error("Phantom authentication rejected", err);
-      // Force disconnect if user cancels the signature to prevent hung UI state
+      console.error("Auth rejected", err);
       disconnect();
     } finally {
       setIsAuthenticating(false);
@@ -65,46 +58,34 @@ const App: React.FC = () => {
 
   return (
     <HashRouter>
-      <div className="flex min-h-screen bg-slate-50">
-        <Sidebar />
+      <div className="flex flex-col min-h-screen bg-[#070A0F]">
+        <TopNav profile={profile} />
         
-        <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <TopBar 
-            network="mainnet-beta" 
-            profile={profile}
-            isAuthenticating={isAuthenticating}
-            searchQuery={searchQuery}
-            onSearch={setSearchQuery}
-          />
-          
-          <div className="flex-1 overflow-y-auto p-4 md:p-8">
-            <Routes>
-              <Route path="/" element={
-                profile 
-                  ? <DashboardView profile={profile} /> 
-                  : <div className="p-20 text-center max-w-md mx-auto space-y-6 animate-in fade-in duration-700">
-                      <div className="w-24 h-24 bg-indigo-50 text-indigo-600 rounded-[2.5rem] flex items-center justify-center mx-auto text-4xl shadow-inner border border-indigo-100">
-                        <i className="fa-solid fa-ghost"></i>
-                      </div>
-                      <div className="space-y-3">
-                        <h2 className="text-4xl font-black text-slate-900 tracking-tight">Privacy Dash</h2>
-                        <p className="text-slate-500 font-semibold leading-relaxed">Secure your payments with local encryption. Connect your Phantom wallet to access your private dashboard.</p>
-                      </div>
-                      <div className="pt-6">
-                         <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white shadow-sm rounded-full text-[10px] font-black text-slate-500 uppercase tracking-widest border border-slate-200">
-                           <i className="fa-solid fa-shield-halved text-indigo-500"></i> Local AES-256 Protocol Active
-                         </div>
-                      </div>
+        <main className="flex-1 mt-24 overflow-y-auto px-12 py-10">
+          <Routes>
+            <Route path="/" element={
+              profile 
+                ? <DashboardView profile={profile} /> 
+                : <div className="h-[70vh] flex flex-col items-center justify-center text-center space-y-10">
+                    <div className="w-32 h-32 bg-white/5 rounded-[2rem] flex items-center justify-center text-5xl shadow-2xl border border-white/10 animate-pulse">
+                      <i className="fa-solid fa-shield-halved text-[#00D1FF] accent-glow"></i>
                     </div>
-              } />
-              <Route path="/create" element={<CreateRequestView profile={profile} />} />
-              <Route path="/requests" element={<RequestsView searchQuery={searchQuery} profile={profile} />} />
-              <Route path="/receipts" element={<ReceiptsView profile={profile} />} />
-              <Route path="/settings" element={<SettingsView profile={profile} />} />
-              <Route path="/pay/:id" element={<PayView />} />
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </div>
+                    <div className="space-y-4 max-w-xl">
+                      <h2 className="text-6xl font-black italic tracking-tighter text-white">READY TO ACCESS?</h2>
+                      <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">ENCRYPTED DATA TERMINAL REQUIRES PHANTOM HANDSHAKE</p>
+                    </div>
+                    <div className="p-1 px-8 bg-white/5 rounded-full border border-white/5 text-[10px] font-black text-[#00D1FF] uppercase tracking-[0.4em]">
+                      Awaiting Signature Input
+                    </div>
+                  </div>
+            } />
+            <Route path="/create" element={<CreateRequestView profile={profile} />} />
+            <Route path="/requests" element={<RequestsView searchQuery={searchQuery} profile={profile} />} />
+            <Route path="/receipts" element={<ReceiptsView profile={profile} />} />
+            <Route path="/settings" element={<SettingsView profile={profile} />} />
+            <Route path="/pay/:id" element={<PayView />} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
         </main>
       </div>
     </HashRouter>
