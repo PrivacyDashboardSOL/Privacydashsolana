@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { ICONS } from '../constants';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { UserProfile } from '../types';
@@ -9,32 +8,31 @@ interface TopNavProps {
   profile: UserProfile | null;
   searchQuery: string;
   onSearch: (val: string) => void;
+  onAuthTrigger: () => void;
 }
 
-const TopNav: React.FC<TopNavProps> = ({ profile, searchQuery, onSearch }) => {
-  const { connected, disconnect, publicKey, select, wallets, connect } = useWallet();
+const TopNav: React.FC<TopNavProps> = ({ profile, searchQuery, onSearch, onAuthTrigger }) => {
+  const { connected, disconnect, publicKey } = useWallet();
   const [showProfile, setShowProfile] = useState(false);
-  const location = useLocation();
 
   const navItems = [
-    { name: 'DASHBOARD', path: '/', icon: ICONS.Dashboard },
-    { name: 'CREATE', path: '/create', icon: ICONS.Create },
-    { name: 'HISTORY', path: '/requests', icon: ICONS.Requests },
-    { name: 'RECEIPTS', path: '/receipts', icon: ICONS.Receipts },
-    { name: 'CONFIG', path: '/settings', icon: ICONS.Settings },
+    { name: 'Dashboard', path: '/', icon: ICONS.Dashboard },
+    { name: 'Create', path: '/create', icon: ICONS.Create },
+    { name: 'History', path: '/requests', icon: ICONS.Requests },
+    { name: 'Receipts', path: '/receipts', icon: ICONS.Receipts },
+    { name: 'Settings', path: '/settings', icon: ICONS.Settings },
   ];
 
-  const handleConnect = async () => {
-    const phantom = wallets.find(w => w.adapter.name === 'Phantom');
-    if (phantom) {
-      await select(phantom.adapter.name);
-      await connect();
+  const handleNavClick = (e: React.MouseEvent, path: string) => {
+    if (!profile && path !== '/') {
+      e.preventDefault();
+      onAuthTrigger();
     }
   };
 
   const handleExportBackup = () => {
     const key = localStorage.getItem('privacy_dash_master_key');
-    if (!key) return alert("VAULT NOT INITIALIZED");
+    if (!key) return alert("Vault not initialized");
     const blob = new Blob([key], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -45,104 +43,100 @@ const TopNav: React.FC<TopNavProps> = ({ profile, searchQuery, onSearch }) => {
   };
 
   return (
-    <nav className="h-24 px-8 lg:px-12 flex items-center justify-between border-b border-white/5 bg-black/20 backdrop-blur-xl fixed top-0 w-full z-50">
-      {/* Left Section: Logo + Navigation */}
-      <div className="flex items-center gap-6 lg:gap-10">
-        <div className="flex items-center gap-3 shrink-0">
-          <div className="w-8 h-8 bg-[#00D1FF] rounded-lg shadow-[0_0_20px_rgba(0,209,255,0.4)] flex items-center justify-center">
-            <i className="fa-solid fa-ghost text-black text-sm"></i>
+    <nav className="h-16 px-6 flex items-center border-b border-white/10 bg-black fixed top-0 w-full z-[100] backdrop-blur-md">
+      {/* Brand - Logo Only - Sized Larger */}
+      <div className="flex items-center shrink-0">
+        <NavLink to="/" className="flex items-center">
+          <div className="h-16 w-48 flex items-center justify-center overflow-hidden">
+            <img 
+              src="https://i.postimg.cc/QdKmjG6X/Untitled-design-(47).png" 
+              alt="Logo" 
+              className="w-full h-full object-contain scale-125" 
+            />
           </div>
-          <span className="font-black text-lg tracking-tighter italic hidden xl:block">PRIVACY DASH</span>
-        </div>
-
-        <div className="flex items-center gap-4 lg:gap-7">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={({ isActive }) =>
-                `text-[10px] font-black tracking-widest transition-all hover:text-[#00D1FF] flex items-center gap-2 ${
-                  isActive ? 'nav-tab-active' : 'text-slate-500'
-                }`
-              }
-            >
-              <span className="opacity-50 text-[12px]">{item.icon}</span>
-              <span className="hidden lg:block uppercase">{item.name}</span>
-            </NavLink>
-          ))}
-        </div>
+        </NavLink>
       </div>
 
-      {/* Right Section: Search + Utilities + Wallet */}
-      <div className="flex items-center gap-4 lg:gap-6 flex-1 justify-end">
-        <div className="relative w-full max-w-[220px] lg:max-w-[280px] group hidden md:block ml-4">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#00D1FF] transition-colors text-[10px]">
+      <div className="h-6 w-px bg-white/10 mx-6 shrink-0 hidden lg:block"></div>
+
+      {/* Navigation */}
+      <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-2">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            onClick={(e) => handleNavClick(e, item.path)}
+            className={({ isActive }) =>
+              `px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-white/5 flex items-center gap-2 whitespace-nowrap ${
+                (isActive && profile) ? 'text-[#00D1FF] bg-[#00D1FF]/10' : 'text-slate-400'
+              }`
+            }
+          >
+            <span className="opacity-80">{item.icon}</span>
+            <span className="hidden md:block">{item.name}</span>
+          </NavLink>
+        ))}
+      </div>
+
+      <div className="flex-1"></div>
+
+      {/* Tools */}
+      <div className="flex items-center gap-4 shrink-0">
+        <div className="relative w-40 lg:w-56 hidden sm:block">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">
             {ICONS.Search}
           </div>
           <input 
             type="text"
-            placeholder="FILTER TERMINAL..."
+            placeholder="Search..."
             value={searchQuery}
             onChange={(e) => onSearch(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-[9px] font-black tracking-widest text-white focus:border-[#00D1FF] outline-none transition-all placeholder:text-slate-700"
+            className="w-full bg-white/5 border border-white/10 rounded-lg py-1.5 pl-9 pr-3 text-sm text-white focus:border-[#00D1FF]/50 outline-none transition-all placeholder:text-slate-600"
           />
         </div>
 
         <button 
           onClick={handleExportBackup}
-          className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-[#00D1FF] hover:border-[#00D1FF]/30 transition-all group shrink-0"
-          title="Export System Backup"
+          className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-[#00D1FF] transition-all"
+          title="Backup Vault"
         >
-          {ICONS.Export}
+          <span className="text-base">{ICONS.Export}</span>
         </button>
-
-        <div className="h-8 w-px bg-white/10 mx-1 shrink-0"></div>
 
         {connected && publicKey ? (
           <div className="relative shrink-0">
             <button 
               onClick={() => setShowProfile(!showProfile)}
-              className="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-xl border border-white/10 hover:border-[#00D1FF]/50 transition-all"
+              className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:border-cyan-500/50 transition-all"
             >
-              <div className="text-right hidden sm:block">
-                <p className="text-[10px] font-black text-white">
-                  {publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-4)}
-                </p>
-                <p className="text-[10px] font-bold text-[#00D1FF] uppercase tracking-tighter">
-                  AUTHENTICATED
-                </p>
-              </div>
-              <div className="w-8 h-8 rounded-full bg-slate-800 border border-white/20 flex items-center justify-center overflow-hidden shrink-0">
-                 <i className="fa-solid fa-user-secret text-xs"></i>
+              <span className="text-xs font-mono text-slate-300">
+                {publicKey.toBase58().slice(0, 4)}..{publicKey.toBase58().slice(-4)}
+              </span>
+              <div className="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-white border border-white/10">
+                 <i className="fa-solid fa-user text-[10px]"></i>
               </div>
             </button>
             {showProfile && (
-              <div className="absolute right-0 mt-4 w-64 bg-slate-900 border border-white/10 p-2 rounded-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-                <div className="p-4 border-b border-white/5">
-                  <p className="text-[10px] font-black text-slate-500 uppercase mb-2 tracking-widest">Active Identity</p>
-                  <p className="text-[10px] font-mono break-all text-slate-300 bg-black/40 p-2 rounded-lg">
-                    {publicKey.toBase58()}
-                  </p>
-                </div>
-                <div className="p-4 flex justify-between items-center text-[10px] font-black">
-                  <span className="text-slate-500">CREDITS</span>
-                  <span className="text-[#00D1FF]">{profile?.balance.toFixed(2) || '0.00'} SOL</span>
+              <div className="absolute right-0 mt-2 w-56 bg-zinc-900 border border-white/10 p-1 rounded-xl shadow-xl z-50">
+                <div className="p-3 border-b border-white/5">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Wallet Address</p>
+                  <p className="text-xs font-mono break-all text-slate-300">{publicKey.toBase58()}</p>
                 </div>
                 <button 
                   onClick={() => { disconnect(); setShowProfile(false); }}
-                  className="w-full mt-2 py-3 text-red-400 text-[10px] font-black hover:bg-red-500/10 rounded-xl transition-all uppercase tracking-widest"
+                  className="w-full py-2 text-red-400 font-semibold text-xs hover:bg-red-500/10 rounded-lg transition-all"
                 >
-                  Terminate Session
+                  Disconnect
                 </button>
               </div>
             )}
           </div>
         ) : (
           <button 
-            onClick={handleConnect}
-            className="px-6 py-2.5 bg-[#00D1FF] text-black font-black text-xs italic tracking-tighter hover:scale-105 transition-all rounded-xl shadow-[0_0_20px_rgba(0,209,255,0.3)] shrink-0"
+            onClick={onAuthTrigger}
+            className="px-4 py-2 bg-[#00D1FF] text-black font-bold text-sm rounded-lg hover:brightness-110 transition-all"
           >
-            INITIALIZE PHANTOM
+            Connect Wallet
           </button>
         )}
       </div>

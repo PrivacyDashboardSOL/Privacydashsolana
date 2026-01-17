@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRIVACY DASH | NEXT-GEN COMMAND</title>
+    <title>PRIVACY DASH | COMMAND</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://esm.sh/@solana/wallet-adapter-react-ui/styles.css">
@@ -13,71 +12,43 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #070A0F;
-            background-image: 
-                radial-gradient(circle at 50% -20%, #101826 0%, #070A0F 100%),
-                radial-gradient(circle at 0% 0%, rgba(0, 209, 255, 0.03) 0%, transparent 50%);
+            background-color: #000000;
             color: #f8fafc;
             overflow-x: hidden;
         }
 
+        .bg-glow {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% -20%, rgba(0, 209, 255, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
         .premium-panel {
-            background: linear-gradient(135deg, rgba(15, 23, 36, 0.8) 0%, rgba(10, 16, 32, 0.95) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(12px);
-            border-radius: 18px;
-            transition: all 0.32s cubic-bezier(0.2, 0, 0, 1);
+            background: rgba(10, 10, 10, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            transition: all 0.3s ease;
         }
 
         .premium-panel:hover {
-            border-color: rgba(0, 209, 255, 0.3);
-            transform: scale(1.01);
-            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 209, 255, 0.1);
-        }
-
-        .light-sweep {
-            position: relative;
-            overflow: hidden;
-        }
-        .light-sweep::after {
-            content: "";
-            position: absolute;
-            top: 0; left: -150%; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-            transform: skewX(-25deg);
-            transition: 0.75s;
-        }
-        .light-sweep:hover::after {
-            left: 150%;
+            border-color: rgba(0, 209, 255, 0.1);
+            background: rgba(15, 15, 15, 0.8);
         }
 
         .accent-glow {
-            text-shadow: 0 0 15px rgba(0, 209, 255, 0.5);
+            box-shadow: 0 0 30px rgba(0, 209, 255, 0.2);
         }
 
         .nav-tab-active {
-            color: #00D1FF;
-            position: relative;
-        }
-        .nav-tab-active::after {
-            content: "";
-            position: absolute;
-            bottom: -8px; left: 0; width: 100%; height: 2px;
-            background: #00D1FF;
-            box-shadow: 0 0 10px #00D1FF;
+            color: #00D1FF !important;
         }
 
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #070A0F; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
-
-        .vignette {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.4) 100%);
-            pointer-events: none;
-            z-index: 50;
-        }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
     </style>
 <script type="importmap">
 {
@@ -97,8 +68,8 @@
 }
 </script>
 </head>
-<body class="bg-slate-950 text-slate-100 antialiased">
-    <div class="vignette"></div>
+<body class="bg-black text-slate-100 antialiased">
+    <div class="bg-glow"></div>
     <div id="root"></div>
 </body>
 </html>

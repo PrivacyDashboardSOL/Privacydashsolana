@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { resetMasterKey } from '../services/crypto';
@@ -35,15 +34,19 @@ const SettingsView: React.FC<SettingsViewProps> = ({ profile }) => {
   return (
     <div className="max-w-[1200px] mx-auto pb-20 animate-in fade-in duration-700">
       <div className="mb-12 border-b border-white/5 pb-8">
-        <h2 className="text-6xl font-black italic tracking-tighter text-white uppercase">System_Config</h2>
+        <h2 className="text-6xl font-black italic tracking-tighter text-white uppercase tracking-tight">System_Config</h2>
         <p className="text-sm font-black text-slate-500 uppercase tracking-[0.4em] mt-2">Core protocol and security parameters</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <section className="premium-panel overflow-hidden border-t-2 border-t-[#00D1FF]">
           <div className="p-8 border-b border-white/5 bg-white/2 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-[#00D1FF]/10 text-[#00D1FF] flex items-center justify-center accent-glow">
-              <i className="fa-solid fa-ghost"></i>
+            <div className="w-14 h-14 rounded-xl bg-black border border-white/10 flex items-center justify-center overflow-hidden p-2">
+              <img 
+                src="https://i.postimg.cc/QdKmjG6X/Untitled-design-(47).png" 
+                className="w-full h-full object-contain" 
+                alt="Privacy Dash Logo" 
+              />
             </div>
             <h3 className="text-xs font-black tracking-widest uppercase">Relay Identity</h3>
           </div>
@@ -57,7 +60,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ profile }) => {
             <div className="flex justify-between items-center bg-white/2 p-5 rounded-xl border border-white/5">
               <div>
                 <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Session Age</h4>
-                <p className="text-xs font-black text-white italic mt-1">ESTABLISHED {new Date(profile.lastLoginAt).toLocaleTimeString()}</p>
+                <p className="text-xs font-black text-white italic mt-1 uppercase">ESTABLISHED {new Date(profile.lastLoginAt).toLocaleTimeString()}</p>
               </div>
               <div className="px-3 py-1 bg-green-500/10 text-green-400 text-[8px] font-black rounded-md border border-green-500/20">STABLE</div>
             </div>
@@ -74,12 +77,12 @@ const SettingsView: React.FC<SettingsViewProps> = ({ profile }) => {
           <div className="p-8 space-y-10">
             <div className="flex items-center justify-between gap-6">
               <div className="flex-1">
-                <h4 className="text-sm font-black text-white italic tracking-tighter">VAULT KEY BACKUP</h4>
+                <h4 className="text-sm font-black text-white italic tracking-tighter uppercase">Vault Key Backup</h4>
                 <p className="text-[10px] text-slate-500 font-bold uppercase mt-1 leading-relaxed">Extract your AES-256 master key for cross-terminal recovery.</p>
               </div>
               <button 
                 onClick={handleExportBackup}
-                className="px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white hover:bg-white/10 transition-all uppercase"
+                className="px-8 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white hover:bg-white/10 transition-all uppercase italic tracking-widest"
               >
                 Extract Key
               </button>
@@ -87,12 +90,12 @@ const SettingsView: React.FC<SettingsViewProps> = ({ profile }) => {
 
             <div className="flex items-center justify-between gap-6 border-t border-white/5 pt-10">
               <div className="flex-1">
-                <h4 className="text-sm font-black text-red-500 italic tracking-tighter">DATA TERMINATION</h4>
+                <h4 className="text-sm font-black text-red-500 italic tracking-tighter uppercase">Data Termination</h4>
                 <p className="text-[10px] text-slate-500 font-bold uppercase mt-1 leading-relaxed">Wipe all local keys and cache. Permanent action.</p>
               </div>
               <button 
                 onClick={handleClearCache}
-                className="px-8 py-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-[10px] font-black hover:bg-red-500 transition-all uppercase"
+                className="px-8 py-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-[10px] font-black hover:bg-red-500 transition-all uppercase italic tracking-widest"
               >
                 Flush Cache
               </button>
@@ -110,7 +113,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ profile }) => {
           <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-12">
             <div className="flex items-center justify-between p-6 bg-white/2 rounded-2xl border border-white/5">
               <div>
-                <h4 className="text-sm font-black text-white italic tracking-tighter">AUTO-LOCK SEQUENCE</h4>
+                <h4 className="text-sm font-black text-white italic tracking-tighter uppercase">Auto-Lock Sequence</h4>
                 <p className="text-[10px] text-slate-500 font-bold uppercase mt-1">Automatic vault isolation on idle</p>
               </div>
               <select 
@@ -127,7 +130,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ profile }) => {
 
             <div className="flex items-center justify-between p-6 bg-white/2 rounded-2xl border border-white/5">
               <div>
-                <h4 className="text-sm font-black text-white italic tracking-tighter">MAINNET PROTOCOL</h4>
+                <h4 className="text-sm font-black text-white italic tracking-tighter uppercase">Mainnet Protocol</h4>
                 <p className="text-[10px] text-slate-500 font-bold uppercase mt-1">Mandatory Solana Pay compliance</p>
               </div>
               <div className="w-14 h-7 bg-[#00D1FF] rounded-full relative shadow-[0_0_15px_rgba(0,209,255,0.4)]">
