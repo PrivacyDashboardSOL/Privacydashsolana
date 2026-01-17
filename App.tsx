@@ -103,13 +103,12 @@ const LandingPage = ({ triggerConnect, isAuthenticating }: { triggerConnect: () 
   <div className="w-full">
     {/* Hero Section */}
     <section className="min-h-[85vh] flex flex-col items-center justify-center text-center px-6 max-w-6xl mx-auto pt-24 pb-32">
-        <div className="max-w-3xl space-y-8 animate-in fade-in zoom-in duration-700">
+        <div className="max-w-4xl space-y-8 animate-in fade-in zoom-in duration-700">
             <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-white uppercase italic leading-none">
-              Privacy <span className="text-[#00D1FF]">Dash</span>
+              The Private Way <br/> to <span className="text-[#00D1FF]">Get Paid</span>
             </h2>
-            <p className="text-slate-400 text-lg md:text-2xl font-medium max-w-xl mx-auto leading-relaxed">
-              Professional Solana Pay terminal. <br className="hidden md:block" /> 
-              Local-first encryption for secure merchant operations.
+            <p className="text-slate-400 text-lg md:text-2xl font-medium max-w-2xl mx-auto leading-relaxed">
+              Accept Solana and USDC directly to your wallet. No fees, no middleman, and built-in privacy that keeps your business details between you and your customer.
             </p>
             
             <div className="pt-8">
@@ -123,7 +122,7 @@ const LandingPage = ({ triggerConnect, isAuthenticating }: { triggerConnect: () 
                     onClick={triggerConnect}
                     className="px-12 py-5 bg-[#00D1FF] text-black font-black text-xl rounded-2xl shadow-[0_10px_50px_rgba(0,209,255,0.3)] hover:scale-[1.05] transition-all uppercase italic"
                   >
-                    Initialize Secure Session
+                    Open Your Dashboard
                   </button>
                 )}
             </div>
@@ -133,18 +132,18 @@ const LandingPage = ({ triggerConnect, isAuthenticating }: { triggerConnect: () 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-24 text-left">
             <ManifestCard 
               icon="fa-key" 
-              title="Sovereign Keys" 
-              desc="Keys are generated via Web Crypto API and never leave your local environment."
+              title="You Own Your Data" 
+              desc="Your data is locked on your device. We never see your invoices, customer lists, or notes."
             />
             <ManifestCard 
               icon="fa-user-secret" 
-              title="Private Invoices" 
-              desc="Encrypted metadata ensures your business relationships remain confidential."
+              title="Built-in Privacy" 
+              desc="Only the payment amount is public. Everything else is hidden from prying eyes."
             />
             <ManifestCard 
               icon="fa-bolt" 
-              title="Solana Pay" 
-              desc="Direct, fee-free settlements on the world's most performant blockchain."
+              title="Keep Every Cent" 
+              desc="Get paid instantly without the 3% processing fees of traditional networks."
             />
         </div>
     </section>
@@ -154,47 +153,53 @@ const LandingPage = ({ triggerConnect, isAuthenticating }: { triggerConnect: () 
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row gap-16 items-center">
           <div className="flex-1 space-y-6">
-            <h3 className="text-[#00D1FF] font-black text-sm uppercase tracking-[0.5em]">The Protocol</h3>
-            <h2 className="text-4xl font-black text-white uppercase italic leading-tight">How Privacy Dash Secures Your Data</h2>
+            <h3 className="text-[#00D1FF] font-black text-sm uppercase tracking-[0.5em]">The Simple Process</h3>
+            <h2 className="text-4xl font-black text-white uppercase italic leading-tight">Fast Payments, Total Privacy</h2>
             <p className="text-slate-400 leading-relaxed text-lg">
-              Most payment dashboards store your business details on a central server. Privacy Dash flips the script. 
-              We use the browser's <strong>SubtleCrypto API</strong> to derive an AES-256-GCM master key that exists 
-              only in your specific browser profile.
+              Traditional payment dashboards store your business details on their servers. <strong>Privacy Dash</strong> uses your browser as a digital vault. 
+              Your records are encrypted locally before they ever leave your computer.
             </p>
             <ul className="space-y-4 pt-4">
               <li className="flex gap-4">
                 <div className="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center text-[#00D1FF] text-xs font-bold shrink-0">1</div>
-                <p className="text-sm text-slate-300 font-medium">Encrypt invoice line-items locally before deployment.</p>
+                <p className="text-sm text-slate-300 font-medium">Create a request with amount and details.</p>
               </li>
               <li className="flex gap-4">
                 <div className="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center text-[#00D1FF] text-xs font-bold shrink-0">2</div>
-                <p className="text-sm text-slate-300 font-medium">Public metadata (label, icon) is pushed to the Solana Pay protocol.</p>
+                <p className="text-sm text-slate-300 font-medium">Send the link. Your customer pays directly, wallet-to-wallet.</p>
               </li>
               <li className="flex gap-4">
                 <div className="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center text-[#00D1FF] text-xs font-bold shrink-0">3</div>
-                <p className="text-sm text-slate-300 font-medium">Unlock and decrypt records only when your master key is present.</p>
+                <p className="text-sm text-slate-300 font-medium">Access your history any time using your secure digital key.</p>
               </li>
             </ul>
           </div>
           <div className="flex-1 w-full max-w-md">
             <div className="bg-black border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-4 opacity-20 text-[#00D1FF]">
-                <i className="fa-solid fa-code text-6xl"></i>
+                <i className="fa-solid fa-vault text-6xl"></i>
               </div>
-              <div className="space-y-6 font-mono text-[11px]">
-                <div className="p-3 bg-zinc-900 rounded-lg border border-white/5">
-                  <span className="text-purple-400">const</span> <span className="text-blue-400">masterKey</span> = <span className="text-yellow-400">await</span> <span className="text-cyan-400">subtle.generateKey</span>();
+              <div className="space-y-6">
+                <div className="p-4 bg-zinc-900 rounded-lg border border-white/5 flex items-center gap-4">
+                  <div className="w-10 h-10 bg-green-500/20 rounded flex items-center justify-center text-green-400">
+                    <i className="fa-solid fa-check"></i>
+                  </div>
+                  <div>
+                    <p className="text-white font-bold text-sm">Payment Received</p>
+                    <p className="text-[10px] text-slate-500">Instant Settlement</p>
+                  </div>
                 </div>
-                <div className="p-3 bg-zinc-900 rounded-lg border border-white/5 opacity-60">
-                   <span className="text-slate-500">// Payload isolated from server</span><br/>
-                   <span className="text-purple-400">const</span> <span className="text-blue-400">ciphertext</span> = <span className="text-cyan-400">encrypt</span>(invoiceData);
+                <div className="p-4 bg-zinc-900 rounded-lg border border-white/5 flex items-center gap-4 opacity-60">
+                  <div className="w-10 h-10 bg-cyan-500/20 rounded flex items-center justify-center text-[#00D1FF]">
+                    <i className="fa-solid fa-lock"></i>
+                  </div>
+                  <div>
+                    <p className="text-white font-bold text-sm">Details Hidden</p>
+                    <p className="text-[10px] text-slate-500">Locked on your device</p>
+                  </div>
                 </div>
-                <div className="p-3 bg-[#00D1FF]/10 rounded-lg border border-[#00D1FF]/30">
-                   <span className="text-[#00D1FF]">SolanaPay.transfer</span>({<br/>
-                   {/* Fix: Replaced nbsp with JSX string literal for non-breaking spaces */}
-                   {"\u00A0\u00A0"}amount: <span className="text-white">5.0</span>,<br/>
-                   {"\u00A0\u00A0"}label: <span className="text-white">"Premium Asset"</span><br/>
-                   });
+                <div className="p-4 bg-[#00D1FF]/10 rounded-lg border border-[#00D1FF]/30">
+                   <p className="text-[#00D1FF] font-black text-center text-sm uppercase italic">Direct to your wallet</p>
                 </div>
               </div>
             </div>
@@ -207,32 +212,32 @@ const LandingPage = ({ triggerConnect, isAuthenticating }: { triggerConnect: () 
     <section className="py-32 px-6">
       <div className="max-w-6xl mx-auto space-y-20">
         <div className="text-center max-w-2xl mx-auto space-y-4">
-          <h2 className="text-3xl md:text-5xl font-black text-white uppercase italic">Why Privacy Matters</h2>
+          <h2 className="text-3xl md:text-5xl font-black text-white uppercase italic">Modern Business Privacy</h2>
           <p className="text-slate-500 text-sm md:text-base font-medium tracking-wide">
-            Your business activity shouldn't be a public book. Privacy Dash bridges the gap between public settlement and private operations.
+            You deserve a payment solution that doesn't track your every move or take a huge cut of your revenue.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
            <InfoCard 
             icon="fa-shield-heart"
-            title="Zero Logs"
-            content="We don't have a backend database for your customer data. It's stored in the ciphertext of the Solana chain or your browser."
+            title="Total Privacy"
+            content="We don't track you. Your business transactions are your business, and nobody else's."
            />
            <InfoCard 
             icon="fa-hand-holding-dollar"
-            title="Instant Settle"
-            content="Bypass high-fee processors. Receive SOL or USDC directly into your wallet with zero latency."
+            title="Instant Cash"
+            content="Forget waiting 3-5 days for bank transfers. Money hits your wallet in seconds."
            />
            <InfoCard 
             icon="fa-file-export"
-            title="Portable Data"
-            content="Export your master key and database anytime. You are never locked into our platform."
+            title="Own Your History"
+            content="Your records are yours. Export them to any file format whenever you need."
            />
            <InfoCard 
             icon="fa-universal-access"
             title="Non-Custodial"
-            content="We never touch your funds. You sign every transaction through your own Phantom session."
+            content="We never touch your money. You are the only person who can access your funds."
            />
         </div>
       </div>
@@ -243,36 +248,36 @@ const LandingPage = ({ triggerConnect, isAuthenticating }: { triggerConnect: () 
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20">
         <div className="space-y-12">
           <div className="space-y-4">
-            <h3 className="text-[#00D1FF] font-black text-xs uppercase tracking-[0.5em]">Creative Use Cases</h3>
-            <h2 className="text-3xl font-black text-white italic uppercase">How to Use Privacy Dash</h2>
+            <h3 className="text-[#00D1FF] font-black text-xs uppercase tracking-[0.5em]">Way to Use It</h3>
+            <h2 className="text-3xl font-black text-white italic uppercase">Perfect for any Professional</h2>
           </div>
           
           <div className="space-y-8">
              <div className="flex gap-6 group">
                 <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-white shrink-0 group-hover:bg-[#00D1FF] group-hover:text-black transition-all">
-                   <i className="fa-solid fa-palette"></i>
+                   <i className="fa-solid fa-briefcase"></i>
                 </div>
                 <div className="space-y-2">
-                   <h4 className="font-bold text-white uppercase tracking-tight">Art & Collectibles</h4>
-                   <p className="text-sm text-slate-400 leading-relaxed">Sell high-value digital assets without exposing the buyer's private delivery address or confidential terms to the public chain.</p>
+                   <h4 className="font-bold text-white uppercase tracking-tight">Freelancers</h4>
+                   <p className="text-sm text-slate-400 leading-relaxed">Invoice clients for design, dev, or writing work and get paid in USDC instantly with zero fees.</p>
                 </div>
              </div>
              <div className="flex gap-6 group">
                 <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-white shrink-0 group-hover:bg-[#00D1FF] group-hover:text-black transition-all">
-                   <i className="fa-solid fa-user-doctor"></i>
+                   <i className="fa-solid fa-gem"></i>
                 </div>
                 <div className="space-y-2">
-                   <h4 className="font-bold text-white uppercase tracking-tight">Consultation Fees</h4>
-                   <p className="text-sm text-slate-400 leading-relaxed">Accept payment for professional services while keeping internal client IDs and case notes encrypted in the transaction metadata.</p>
+                   <h4 className="font-bold text-white uppercase tracking-tight">Digital Goods</h4>
+                   <p className="text-sm text-slate-400 leading-relaxed">Sell high-end digital art or access codes without exposing your order details to a public blockchain.</p>
                 </div>
              </div>
              <div className="flex gap-6 group">
                 <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-white shrink-0 group-hover:bg-[#00D1FF] group-hover:text-black transition-all">
-                   <i className="fa-solid fa-building"></i>
+                   <i className="fa-solid fa-handshake"></i>
                 </div>
                 <div className="space-y-2">
-                   <h4 className="font-bold text-white uppercase tracking-tight">B2B Private Settlements</h4>
-                   <p className="text-sm text-slate-400 leading-relaxed">Settle vendor invoices with line-item transparency that only the involved parties can verify upon key exchange.</p>
+                   <h4 className="font-bold text-white uppercase tracking-tight">Consultants</h4>
+                   <p className="text-sm text-slate-400 leading-relaxed">Accept professional fees while keeping your client's identity and specific project notes private.</p>
                 </div>
              </div>
           </div>
@@ -281,20 +286,20 @@ const LandingPage = ({ triggerConnect, isAuthenticating }: { triggerConnect: () 
         <div className="space-y-10">
            <div className="bg-black border border-white/10 p-10 rounded-3xl space-y-8">
               <h4 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3">
-                <i className="fa-solid fa-lightbulb text-yellow-400"></i> Best Practices
+                <i className="fa-solid fa-lightbulb text-yellow-400"></i> Pro Tips
               </h4>
               <ul className="space-y-6">
                 <li className="space-y-2">
-                  <p className="text-xs font-black text-[#00D1FF] uppercase tracking-widest italic">1. Export Your Vault Key</p>
-                  <p className="text-sm text-slate-400">Your master key is the only way to read your invoice history. Back it up to an offline password manager or physical medium immediately.</p>
+                  <p className="text-xs font-black text-[#00D1FF] uppercase tracking-widest italic">1. Back Up Your Key</p>
+                  <p className="text-sm text-slate-400">Save your digital key. Since we don't store your details, your key is the only way to see your history if you switch computers.</p>
                 </li>
                 <li className="space-y-2">
-                  <p className="text-xs font-black text-[#00D1FF] uppercase tracking-widest italic">2. Use Descriptive Labels</p>
-                  <p className="text-sm text-slate-400">While metadata is private, your public Merchant Label should be clear so customers trust the transaction when Phantom prompts them.</p>
+                  <p className="text-xs font-black text-[#00D1FF] uppercase tracking-widest italic">2. Use Clear Labels</p>
+                  <p className="text-sm text-slate-400">Give your requests clear public names so your customers feel confident when they see the checkout screen.</p>
                 </li>
                 <li className="space-y-2">
-                  <p className="text-xs font-black text-[#00D1FF] uppercase tracking-widest italic">3. Verify via Solscan</p>
-                  <p className="text-sm text-slate-400">Every paid invoice includes a signature link. Use this to audit the underlying Solana settlement without relying on our UI.</p>
+                  <p className="text-xs font-black text-[#00D1FF] uppercase tracking-widest italic">3. Accept USDC</p>
+                  <p className="text-sm text-slate-400">You can accept stablecoins to avoid price fluctuations, ensuring you get exactly what you invoiced for.</p>
                 </li>
               </ul>
            </div>
@@ -307,10 +312,10 @@ const LandingPage = ({ triggerConnect, isAuthenticating }: { triggerConnect: () 
        <div className="max-w-xl mx-auto space-y-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10 mb-4">
              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 italic">Network Ready // Solana Mainnet-Beta</span>
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 italic">Ready for Mainnet</span>
           </div>
-          <h2 className="text-4xl font-black text-white italic uppercase tracking-tighter">Ready to Deploy?</h2>
-          <p className="text-slate-500 text-sm font-medium uppercase tracking-widest">Join the new era of private merchant operations.</p>
+          <h2 className="text-4xl font-black text-white italic uppercase tracking-tighter">Start Getting Paid</h2>
+          <p className="text-slate-500 text-sm font-medium uppercase tracking-widest">Connect your Phantom wallet and launch your terminal.</p>
           <div className="pt-6">
             <button 
               onClick={triggerConnect}
@@ -320,7 +325,7 @@ const LandingPage = ({ triggerConnect, isAuthenticating }: { triggerConnect: () 
             </button>
           </div>
           <p className="text-[9px] text-slate-700 font-bold uppercase tracking-[0.4em] pt-12">
-            PRIVACY DASH // REVISION 4.2.0-ALPHA // BUILT ON SOLANA
+            PRIVACY DASH // BUILT ON SOLANA
           </p>
        </div>
     </footer>
