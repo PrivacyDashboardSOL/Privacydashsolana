@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import { ICONS } from '../constants';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { UserProfile } from '../types';
@@ -11,11 +11,21 @@ interface TopNavProps {
   onAuthTrigger: () => void;
   onLockVault: () => void;
   isAuthenticating: boolean;
+  network: 'mainnet-beta' | 'devnet';
+  onNetworkChange: (net: 'mainnet-beta' | 'devnet') => void;
 }
 
-const TopNav: React.FC<TopNavProps> = ({ profile, searchQuery, onSearch, onAuthTrigger, onLockVault, isAuthenticating }) => {
+const TopNav: React.FC<TopNavProps> = ({ 
+  profile, 
+  searchQuery, 
+  onSearch, 
+  onAuthTrigger, 
+  onLockVault, 
+  isAuthenticating,
+  network,
+  onNetworkChange
+}) => {
   const { connected, disconnect, publicKey } = useWallet();
-  const navigate = useNavigate();
   const [showProfile, setShowProfile] = useState(false);
   const [shakingItem, setShakingItem] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -35,6 +45,10 @@ const TopNav: React.FC<TopNavProps> = ({ profile, searchQuery, onSearch, onAuthT
       onAuthTrigger();
       setTimeout(() => setShakingItem(null), 500);
     }
+  };
+
+  const toggleNetwork = () => {
+    onNetworkChange(network === 'mainnet-beta' ? 'devnet' : 'mainnet-beta');
   };
 
   const copyAddress = () => {
@@ -94,7 +108,16 @@ const TopNav: React.FC<TopNavProps> = ({ profile, searchQuery, onSearch, onAuthT
 
       {/* Tools */}
       <div className="flex items-center gap-4 shrink-0">
-        <div className="relative w-40 lg:w-56 hidden sm:block">
+        {/* Network Toggle */}
+        <button 
+          onClick={toggleNetwork}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/20 transition-all text-[10px] font-black uppercase tracking-widest ${network === 'mainnet-beta' ? 'text-amber-500' : 'text-purple-400'}`}
+        >
+          <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${network === 'mainnet-beta' ? 'bg-amber-500' : 'bg-purple-400'}`}></div>
+          {network === 'mainnet-beta' ? 'Mainnet' : 'Devnet'}
+        </button>
+
+        <div className="relative w-40 lg:w-56 hidden md:block">
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">
             {ICONS.Search}
           </div>
@@ -138,7 +161,7 @@ const TopNav: React.FC<TopNavProps> = ({ profile, searchQuery, onSearch, onAuthT
                         <i className="fa-solid fa-wallet"></i>
                       </div>
                       <div>
-                        <p className="text-xl font-black text-white italic leading-none">{profile?.balance || '5.42'} <span className="text-[10px] text-slate-500">SOL</span></p>
+                        <p className="text-xl font-black text-white italic leading-none">{profile?.balance || '0.00'} <span className="text-[10px] text-slate-500">SOL</span></p>
                         <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Available Assets</p>
                       </div>
                     </div>

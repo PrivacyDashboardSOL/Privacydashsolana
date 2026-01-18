@@ -1,15 +1,19 @@
-
 import React, { useMemo } from 'react';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 
-export const SolanaProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Hardcoded to Mainnet Beta for Privacy Dash production feel
-  const endpoint = useMemo(() => clusterApiUrl('mainnet-beta'), []);
+interface SolanaProvidersProps {
+  children: React.ReactNode;
+  network: 'mainnet-beta' | 'devnet';
+}
+
+export const SolanaProviders: React.FC<SolanaProvidersProps> = ({ children, network }) => {
+  // Use a more reliable public endpoint for devnet if needed, 
+  // but clusterApiUrl is usually fine for testing.
+  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   
-  // ONLY include Phantom. Rip out everything else.
   const wallets = useMemo(() => [
     new PhantomWalletAdapter(),
   ], []);

@@ -1,4 +1,3 @@
-
 import { SolanaPayRequest, RequestStatus, Stats, UserProfile } from '../types';
 
 const STORAGE_KEY = 'privacy_dash_v1_mainnet';
@@ -9,7 +8,6 @@ function safeJsonStringify(data: any): string {
   try {
     return JSON.stringify(data);
   } catch (e) {
-    console.warn("Serialization warning, using fallback for circularity");
     const seen = new WeakSet();
     return JSON.stringify(data, (key, value) => {
       if (typeof value === "object" && value !== null) {
@@ -26,7 +24,6 @@ function getStore(): SolanaPayRequest[] {
     const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : [];
   } catch (e) {
-    console.error("Failed to parse store");
     return [];
   }
 }
@@ -59,7 +56,6 @@ function getProfiles(): Record<string, UserProfile> {
     const data = localStorage.getItem(PROFILES_KEY);
     return data ? JSON.parse(data) : {};
   } catch (e) {
-    console.error("Failed to parse profiles");
     return {};
   }
 }
@@ -113,6 +109,15 @@ export const MockBackend = {
     store.push(newRequest);
     saveStore(store);
     return newRequest;
+  },
+
+  createDemoRequest: async (creator: string) => {
+    return MockBackend.createRequest({
+      label: 'DEMO_RELAY',
+      amount: 0.1,
+      icon: 'https://i.postimg.cc/QdKmjG6X/Untitled-design-(47).png',
+      ciphertext: 'demo_ciphertext'
+    }, creator);
   },
 
   getRequest: async (id: string): Promise<SolanaPayRequest | undefined> => {

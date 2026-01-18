@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { resetMasterKey } from '../services/crypto';
 import { UserProfile } from '../types';
@@ -9,13 +9,18 @@ interface SettingsViewProps {
 
 const SettingsView: React.FC<SettingsViewProps> = ({ profile }) => {
   const [autoLock, setAutoLock] = useState(30);
+  const [persisted, setPersisted] = useState(true);
+  const [lastUnlocked, setLastUnlocked] = useState<string>('');
+
+  useEffect(() => {
+    setLastUnlocked(new Date().toLocaleTimeString());
+  }, []);
 
   if (!profile) return <Navigate to="/" />;
 
   const handleClearCache = () => {
-    if (confirm("CRITICAL WARNING: Terminating the Master Key will render all previous data streams permanent inaccessible. Proceed with termination?")) {
+    if (confirm("CRITICAL WARNING: Terminating the Master Key will render all previous data streams permanently inaccessible. Proceed?")) {
       resetMasterKey();
-      alert("MASTER KEY TERMINATED. SYSTEM RELOAD INITIATED.");
       window.location.reload();
     }
   };
@@ -59,10 +64,10 @@ const SettingsView: React.FC<SettingsViewProps> = ({ profile }) => {
             </div>
             <div className="flex justify-between items-center bg-white/2 p-5 rounded-xl border border-white/5">
               <div>
-                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Session Age</h4>
-                <p className="text-xs font-black text-white italic mt-1 uppercase">ESTABLISHED {new Date(profile.lastLoginAt).toLocaleTimeString()}</p>
+                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Session Last Unlocked</h4>
+                <p className="text-xs font-black text-white italic mt-1 uppercase">{lastUnlocked}</p>
               </div>
-              <div className="px-3 py-1 bg-green-500/10 text-green-400 text-[8px] font-black rounded-md border border-green-500/20">STABLE</div>
+              <div className="px-3 py-1 bg-green-500/10 text-green-400 text-[8px] font-black rounded-md border border-green-500/20">VERIFIED</div>
             </div>
           </div>
         </section>
@@ -110,9 +115,9 @@ const SettingsView: React.FC<SettingsViewProps> = ({ profile }) => {
             </div>
             <h3 className="text-xs font-black tracking-widest uppercase">Operational Parameters</h3>
           </div>
-          <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div className="flex items-center justify-between p-6 bg-white/2 rounded-2xl border border-white/5">
-              <div>
+          <div className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+            <div className="flex flex-col justify-between p-6 bg-white/2 rounded-2xl border border-white/5">
+              <div className="mb-4">
                 <h4 className="text-sm font-black text-white italic tracking-tighter uppercase">Auto-Lock Sequence</h4>
                 <p className="text-[10px] text-slate-500 font-bold uppercase mt-1">Automatic vault isolation on idle</p>
               </div>
@@ -124,17 +129,30 @@ const SettingsView: React.FC<SettingsViewProps> = ({ profile }) => {
                 <option value={5}>05 MIN</option>
                 <option value={15}>15 MIN</option>
                 <option value={30}>30 MIN</option>
-                <option value={60}>60 MIN</option>
               </select>
             </div>
 
-            <div className="flex items-center justify-between p-6 bg-white/2 rounded-2xl border border-white/5">
-              <div>
-                <h4 className="text-sm font-black text-white italic tracking-tighter uppercase">Mainnet Protocol</h4>
-                <p className="text-[10px] text-slate-500 font-bold uppercase mt-1">Mandatory Solana Pay compliance</p>
+            <div className="flex flex-col justify-between p-6 bg-white/2 rounded-2xl border border-white/5">
+              <div className="mb-4">
+                <h4 className="text-sm font-black text-white italic tracking-tighter uppercase">Persisted Session</h4>
+                <p className="text-[10px] text-slate-500 font-bold uppercase mt-1">Remain authorized after refresh</p>
               </div>
-              <div className="w-14 h-7 bg-[#00D1FF] rounded-full relative shadow-[0_0_15px_rgba(0,209,255,0.4)]">
-                <div className="absolute right-1 top-1 w-5 h-5 bg-black rounded-full"></div>
+              <div 
+                onClick={() => setPersisted(!persisted)}
+                className={`w-14 h-7 rounded-full relative transition-all cursor-pointer ${persisted ? 'bg-[#00D1FF] shadow-[0_0_15px_rgba(0,209,255,0.4)]' : 'bg-slate-800'}`}
+              >
+                <div className={`absolute top-1 w-5 h-5 bg-black rounded-full transition-all ${persisted ? 'right-1' : 'left-1'}`}></div>
+              </div>
+            </div>
+
+            <div className="flex flex-col justify-between p-6 bg-white/2 rounded-2xl border border-white/5">
+              <div className="mb-4">
+                <h4 className="text-sm font-black text-white italic tracking-tighter uppercase">Chain Monitor</h4>
+                <p className="text-[10px] text-slate-500 font-bold uppercase mt-1">Last scan: 12s ago</p>
+              </div>
+              <div className="flex items-center gap-2 text-green-400 font-black text-[10px] uppercase">
+                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                 REFERENCE_INDEX_ACTIVE
               </div>
             </div>
           </div>
@@ -143,16 +161,12 @@ const SettingsView: React.FC<SettingsViewProps> = ({ profile }) => {
              <div className="bg-[#00D1FF]/5 border border-[#00D1FF]/10 rounded-2xl p-6 flex gap-6 items-center">
                 <div className="text-3xl text-[#00D1FF] accent-glow"><i className="fa-solid fa-shield-halved"></i></div>
                 <div className="space-y-1">
-                    <p className="text-xs font-black text-white uppercase italic tracking-widest">Advanced Integrity Enabled</p>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase leading-relaxed">This system leverages the Phantom Relay Bridge for all high-value asset transfers on Mainnet-Beta. No private keys are ever stored on-server.</p>
+                    <p className="text-xs font-black text-white uppercase italic tracking-widest">Ciphertext Encryption Active</p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase leading-relaxed">System utilizes AES-256-GCM. All record indexing happens within the secure terminal context of your browser.</p>
                 </div>
              </div>
           </div>
         </section>
-      </div>
-      
-      <div className="mt-16 text-center">
-        <p className="text-[10px] font-black text-slate-800 uppercase tracking-[0.8em]">Privacy Dash // Revision 4.2.0-Alpha</p>
       </div>
     </div>
   );

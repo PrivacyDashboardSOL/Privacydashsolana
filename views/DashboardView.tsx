@@ -17,23 +17,29 @@ const DashboardView: React.FC<DashboardViewProps> = ({ profile }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [rpcPing, setRpcPing] = useState(12);
 
+  const loadData = async () => {
+    const [s, r] = await Promise.all([
+      MockBackend.getStats(profile.pubkey),
+      MockBackend.getAllRequests(profile.pubkey)
+    ]);
+    setStats(s);
+    setRecent(r.slice(0, 6));
+    setLoading(false);
+  };
+
   useEffect(() => {
-    async function load() {
-      const [s, r] = await Promise.all([
-        MockBackend.getStats(profile.pubkey),
-        MockBackend.getAllRequests(profile.pubkey)
-      ]);
-      setStats(s);
-      setRecent(r.slice(0, 6));
-      setLoading(false);
-    }
-    load();
+    loadData();
     const interval = setInterval(() => {
-      load();
+      loadData();
       setRpcPing(Math.floor(Math.random() * 15) + 8);
     }, 10000);
     return () => clearInterval(interval);
   }, [profile]);
+
+  const handleCreateDemo = async () => {
+    await MockBackend.createDemoRequest(profile.pubkey);
+    loadData();
+  };
 
   const handleCopyLink = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -85,7 +91,6 @@ const DashboardView: React.FC<DashboardViewProps> = ({ profile }) => {
 
   return (
     <div className="max-w-[1600px] mx-auto space-y-8 pb-20 animate-in fade-in duration-700">
-      {/* 4 Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard 
           label="Total Collected" 
@@ -120,7 +125,6 @@ const DashboardView: React.FC<DashboardViewProps> = ({ profile }) => {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        {/* Recent Activity List */}
         <div className="xl:col-span-2 space-y-6">
           <div className="flex justify-between items-center px-2">
             <div>
@@ -187,15 +191,16 @@ const DashboardView: React.FC<DashboardViewProps> = ({ profile }) => {
               <div className="p-16 text-center border border-dashed border-white/5 rounded-2xl flex flex-col items-center">
                 <i className="fa-solid fa-radar text-slate-800 text-3xl mb-4"></i>
                 <p className="text-slate-500 font-black italic uppercase tracking-[0.3em] text-[10px]">Awaiting first relay transmission</p>
-                <Link to="/create" className="mt-4 px-6 py-2 bg-white/5 border border-white/10 text-white font-bold text-[10px] rounded-lg hover:bg-white/10 uppercase tracking-widest transition-all">Initialize Now</Link>
+                <div className="flex gap-3 mt-6">
+                   <Link to="/create" className="px-6 py-2 bg-[#00D1FF] text-black font-black text-[10px] rounded-lg hover:brightness-110 uppercase tracking-widest transition-all">Create Request</Link>
+                   <button onClick={handleCreateDemo} className="px-6 py-2 bg-white/5 border border-white/10 text-white font-bold text-[10px] rounded-lg hover:bg-white/10 uppercase tracking-widest transition-all">View Demo Request</button>
+                </div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Sidebar Info Panels */}
         <div className="space-y-6">
-           {/* System Integrity Panel */}
            <div className="premium-panel p-6 bg-black/40 border-white/10">
               <h3 className="text-[9px] font-black tracking-[0.4em] text-slate-500 uppercase mb-5 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#00D1FF] animate-pulse"></span> Network Integrity
@@ -225,7 +230,6 @@ const DashboardView: React.FC<DashboardViewProps> = ({ profile }) => {
               </div>
            </div>
 
-           {/* Privacy Control Center */}
            <div className="premium-panel overflow-hidden border-[#00D1FF]/10">
               <div className="p-6 bg-gradient-to-br from-[#00D1FF]/10 to-transparent border-b border-white/5">
                 <div className="flex items-center gap-3 mb-1">
@@ -236,24 +240,15 @@ const DashboardView: React.FC<DashboardViewProps> = ({ profile }) => {
               </div>
               
               <div className="p-4 space-y-2">
-                <button 
-                  onClick={handleLockSession}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-white/2 border border-white/5 hover:border-amber-500/30 hover:bg-amber-500/5 group transition-all"
-                >
+                <button onClick={handleLockSession} className="w-full flex items-center justify-between p-3 rounded-xl bg-white/2 border border-white/5 hover:border-amber-500/30 hover:bg-amber-500/5 group transition-all">
                   <span className="text-[10px] font-black text-slate-300 uppercase group-hover:text-amber-400 transition-colors">Lock Session</span>
                   <i className="fa-solid fa-lock text-[10px] text-slate-600 group-hover:text-amber-400"></i>
                 </button>
-                <button 
-                  onClick={handleExportBackup}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-white/2 border border-white/5 hover:border-[#00D1FF]/30 hover:bg-[#00D1FF]/5 group transition-all"
-                >
+                <button onClick={handleExportBackup} className="w-full flex items-center justify-between p-3 rounded-xl bg-white/2 border border-white/5 hover:border-[#00D1FF]/30 hover:bg-[#00D1FF]/5 group transition-all">
                   <span className="text-[10px] font-black text-slate-300 uppercase group-hover:text-[#00D1FF] transition-colors">Export Vault</span>
                   <i className="fa-solid fa-download text-[10px] text-slate-600 group-hover:text-[#00D1FF]"></i>
                 </button>
-                <button 
-                  onClick={handleWipe}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-white/2 border border-white/5 hover:border-red-500/30 hover:bg-red-500/5 group transition-all"
-                >
+                <button onClick={handleWipe} className="w-full flex items-center justify-between p-3 rounded-xl bg-white/2 border border-white/5 hover:border-red-500/30 hover:bg-red-500/5 group transition-all">
                   <span className="text-[10px] font-black text-slate-300 uppercase group-hover:text-red-400 transition-colors">Flush Cache</span>
                   <i className="fa-solid fa-trash text-[10px] text-slate-600 group-hover:text-red-400"></i>
                 </button>
@@ -277,20 +272,12 @@ const DashboardView: React.FC<DashboardViewProps> = ({ profile }) => {
 };
 
 const StatCard = ({ label, val, icon, trend, accent, warning, onClick }: any) => (
-  <div 
-    onClick={onClick}
-    className={`premium-panel p-6 flex flex-col justify-between border-b-2 transition-all cursor-pointer group hover:translate-y-[-2px] ${
-    accent ? 'border-b-[#00D1FF] hover:border-[#00D1FF]' : warning ? 'border-b-amber-500 hover:border-amber-500' : 'border-b-white/10 hover:border-white/30'
-  }`}>
+  <div onClick={onClick} className={`premium-panel p-6 flex flex-col justify-between border-b-2 transition-all cursor-pointer group hover:translate-y-[-2px] ${accent ? 'border-b-[#00D1FF] hover:border-[#00D1FF]' : warning ? 'border-b-amber-500 hover:border-amber-500' : 'border-b-white/10 hover:border-white/30'}`}>
     <div className="flex justify-between items-start mb-6">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-all ${
-        accent ? 'bg-[#00D1FF]/10 text-[#00D1FF]' : 'bg-white/5 text-slate-500 group-hover:text-white'
-      }`}>
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-all ${accent ? 'bg-[#00D1FF]/10 text-[#00D1FF]' : 'bg-white/5 text-slate-500 group-hover:text-white'}`}>
         <i className={`fa-solid ${icon}`}></i>
       </div>
-      <span className={`text-[8px] font-black tracking-widest uppercase px-2 py-1 rounded ${
-        warning ? 'bg-amber-500/10 text-amber-500' : 'bg-white/5 text-slate-500 group-hover:text-white transition-colors'
-      }`}>
+      <span className={`text-[8px] font-black tracking-widest uppercase px-2 py-1 rounded ${warning ? 'bg-amber-500/10 text-amber-500' : 'bg-white/5 text-slate-500 group-hover:text-white transition-colors'}`}>
         {trend}
       </span>
     </div>

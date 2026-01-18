@@ -61,6 +61,13 @@ const CreateRequestView: React.FC<CreateRequestViewProps> = ({ profile }) => {
         <p className="text-sm font-black text-slate-300 uppercase tracking-[0.4em] mt-2">Configure asset parameters and payload</p>
       </div>
 
+      <div className="mb-8 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-4">
+        <i className="fa-solid fa-triangle-exclamation text-amber-500 text-xl"></i>
+        <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest leading-relaxed">
+          Public Fields Warning: The merchant label and icon are visible to wallets during signing. Do not include personal or sensitive info in section 01.
+        </p>
+      </div>
+
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         <div className="lg:col-span-2 space-y-12">
           <section className="premium-panel p-10 space-y-10">
@@ -69,12 +76,6 @@ const CreateRequestView: React.FC<CreateRequestViewProps> = ({ profile }) => {
               <InputGroup label="Merchant Label" value={label} onChange={(val: string) => setLabel(val.toUpperCase())} placeholder="e.g. INVOICE_01" />
               <InputGroup label="Network Icon URL" value={icon} onChange={(val: string) => setIcon(val)} placeholder="https://..." type="url" />
               <InputGroup label="SOL Value" value={amount} onChange={(val: string) => setAmount(Number(val))} type="number" step="0.001" />
-            </div>
-            <div className="p-5 bg-white/2 rounded-xl border border-dashed border-white/5">
-               <p className="text-[10px] text-slate-300 font-black uppercase tracking-widest leading-relaxed">
-                 <i className="fa-solid fa-circle-info mr-2 text-[#00D1FF]"></i> 
-                 These fields are public and will be displayed in the payer's wallet during transaction signing.
-               </p>
             </div>
           </section>
 

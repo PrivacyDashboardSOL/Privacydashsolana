@@ -25,7 +25,6 @@ const RequestsView: React.FC<RequestsViewProps> = ({ searchQuery, profile }) => 
   };
 
   useEffect(() => {
-    // Check if we arrived with a specific filter state
     if (location.state && (location.state as any).filter) {
       setFilter((location.state as any).filter);
     }
@@ -36,15 +35,20 @@ const RequestsView: React.FC<RequestsViewProps> = ({ searchQuery, profile }) => 
 
   const filteredRequests = requests.filter(r => {
     let matchesFilter = filter === 'ALL' || r.status === filter;
-    
-    // Custom complex filter for 'Expiring Soon'
     if (filter === 'EXPIRING_SOON') {
       const soon = new Date(Date.now() + 3600000).toISOString();
       matchesFilter = r.status === RequestStatus.PENDING && r.expiresAt < soon;
     }
 
-    const matchesSearch = r.label.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          r.id.toLowerCase().includes(searchQuery.toLowerCase());
+    const query = searchQuery.toLowerCase();
+    const matchesSearch = 
+      r.label.toLowerCase().includes(query) || 
+      r.id.toLowerCase().includes(query) ||
+      r.amount.toString().includes(query) ||
+      r.status.toLowerCase().includes(query) ||
+      r.reference.toLowerCase().includes(query) ||
+      (r.signature && r.signature.toLowerCase().includes(query));
+
     return matchesFilter && matchesSearch;
   });
 
