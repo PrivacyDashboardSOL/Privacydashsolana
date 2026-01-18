@@ -23,4 +23,6 @@ export const ICONS = {
   Wallet: <i className="fa-solid fa-wallet"></i>,
   Search: <i className="fa-solid fa-magnifying-glass"></i>,
   Export: <i className="fa-solid fa-file-export"></i>,
+  Lock: <i className="fa-solid fa-lock"></i>,
+  Shield: <i className="fa-solid fa-shield-halved"></i>,
 };

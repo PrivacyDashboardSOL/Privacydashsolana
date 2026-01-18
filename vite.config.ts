@@ -1,4 +1,3 @@
-
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
@@ -8,13 +7,18 @@ export default defineConfig({
     'process.env.NODE_ENV': JSON.stringify('production'),
     'global': 'window',
     'process.browser': true,
+    'process.version': JSON.stringify(''),
   },
   resolve: {
     alias: {
-      // Direct fix for the common Solana web3.js + Vite build error.
-      // We map the problematic deep import string used internally by dependencies
-      // to the top-level package, which Vite can resolve using the browser entry point.
+      // Fix for @solana/web3.js resolution error: "Missing ./dist/lib/client specifier"
+      // We alias both the extension-less and the extension-included internal paths 
+      // used by sub-dependencies back to the root or the explicit client file.
       'rpc-websockets/dist/lib/client': 'rpc-websockets',
+      'rpc-websockets/dist/lib/client.js': 'rpc-websockets',
+      // Standard browser polyfills for Solana web3.js
+      'stream': 'stream-browserify',
+      'crypto': 'crypto-browserify',
     },
   },
   optimizeDeps: {
