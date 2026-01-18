@@ -6,18 +6,18 @@ export default defineConfig({
   define: {
     'process.env.NODE_ENV': JSON.stringify('production'),
     'global': 'window',
+    'process.browser': true,
   },
   resolve: {
     alias: {
-      // Direct alias to the browser-compatible client file to fix the rpc-websockets resolve error
-      'rpc-websockets': 'rpc-websockets/dist/lib/client',
+      // Fix for @solana/web3.js dependency resolution
+      // The .js extension is required to bypass the package exports map
+      'rpc-websockets': 'rpc-websockets/dist/lib/client.js',
     },
   },
   build: {
     commonjsOptions: {
       transformMixedEsModules: true,
-      // Ensure rpc-websockets is handled correctly by the CommonJS plugin
-      include: [/rpc-websockets/, /node_modules/],
     },
     rollupOptions: {
       output: {
