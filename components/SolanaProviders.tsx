@@ -10,9 +10,14 @@ interface SolanaProvidersProps {
 }
 
 export const SolanaProviders: React.FC<SolanaProvidersProps> = ({ children, network }) => {
-  // Use a more reliable public endpoint for devnet if needed, 
-  // but clusterApiUrl is usually fine for testing.
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  // We use a more robust public RPC endpoint for mainnet to avoid 403 rate-limiting errors
+  const endpoint = useMemo(() => {
+    if (network === 'mainnet-beta') {
+      // Using a reliable public proxy for better uptime in browser environments
+      return 'https://solana-mainnet.rpc.extrnode.com';
+    }
+    return clusterApiUrl(network);
+  }, [network]);
   
   const wallets = useMemo(() => [
     new PhantomWalletAdapter(),

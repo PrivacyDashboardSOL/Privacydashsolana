@@ -57,83 +57,91 @@ const CreateRequestView: React.FC<CreateRequestViewProps> = ({ profile }) => {
   return (
     <div className="max-w-[1000px] mx-auto pb-24 animate-in fade-in slide-in-from-bottom-5 duration-700">
       <div className="mb-12">
-        <h2 className="text-4xl font-black italic tracking-tighter text-white uppercase">Create Payment Link</h2>
-        <p className="text-slate-500 font-bold uppercase tracking-widest text-xs mt-2">Generate a secure Solana Pay request</p>
+        <h2 className="text-4xl font-black italic tracking-tighter text-white uppercase">New Payment Link</h2>
+        <p className="text-slate-500 font-bold uppercase tracking-widest text-xs mt-2">Get paid directly to your wallet</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Step 0: Destination */}
-        <section className="bg-zinc-900/40 border border-white/5 p-8 rounded-3xl">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-10 h-10 bg-green-500/10 rounded-full flex items-center justify-center text-green-400">
-              <i className="fa-solid fa-wallet"></i>
+        {/* Destination Section - Styled as a Bank Card */}
+        <section className="relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#00D1FF]/20 to-purple-500/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
+          <div className="relative bg-zinc-900/80 border border-white/10 p-8 rounded-3xl backdrop-blur-xl">
+            <div className="flex justify-between items-start mb-8">
+              <div>
+                <h3 className="text-white font-black uppercase text-sm italic">Where You Get Paid</h3>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Funds go directly to this address</p>
+              </div>
+              <div className="px-3 py-1 bg-green-500/10 border border-green-500/30 rounded-full flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                <span className="text-[9px] font-black text-green-400 uppercase tracking-widest">Vault Active</span>
+              </div>
             </div>
-            <div>
-              <h3 className="text-white font-black uppercase text-sm italic">Payment Destination</h3>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Where the money will be sent</p>
+            
+            <div className="flex flex-col md:flex-row md:items-center gap-6">
+              <div className="flex-1 bg-black/60 p-5 rounded-2xl border border-white/5 font-mono text-sm text-white flex items-center justify-between">
+                <span className="truncate mr-4">{profile.pubkey}</span>
+                <i className="fa-solid fa-shield-check text-[#00D1FF]"></i>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Current Balance</p>
+                <p className="text-xl font-black text-white italic">{profile.balance} SOL</p>
+              </div>
             </div>
-          </div>
-          <div className="bg-black/40 p-5 rounded-2xl border border-white/5 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-              <span className="font-mono text-xs text-slate-300">{profile.pubkey}</span>
-            </div>
-            <span className="text-[10px] font-black text-slate-600 uppercase">Your Connected Wallet</span>
           </div>
         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Step 1: Public Info */}
+          {/* Public Details */}
           <section className="premium-panel p-8 space-y-8 border-t-2 border-t-[#00D1FF]">
             <div>
               <h3 className="text-white font-black uppercase text-sm italic flex items-center gap-2">
-                <i className="fa-solid fa-eye text-[#00D1FF]"></i> 1. Public Info
+                <i className="fa-solid fa-cart-shopping text-[#00D1FF]"></i> 1. Customer Details
               </h3>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">The customer sees this in their wallet</p>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">What the customer sees when paying</p>
             </div>
             
             <div className="space-y-6">
               <InputGroup 
-                label="Business Name" 
+                label="Your Business Name" 
                 value={label} 
                 onChange={setLabel} 
-                placeholder="e.g. ACME Services" 
-                help="Appears as the sender in the customer's wallet."
+                placeholder="e.g. My Freelance Studio" 
+                help="Appears in the customer's wallet during checkout."
               />
               <InputGroup 
-                label="Payment Amount (SOL)" 
+                label="Amount to Charge (SOL)" 
                 value={amount} 
                 onChange={(val: string) => setAmount(Number(val))} 
                 type="number" 
                 step="0.001"
-                help="The exact amount of SOL requested."
+                help="The amount the customer will send."
               />
               <InputGroup 
-                label="Business Logo URL" 
+                label="Display Image (URL)" 
                 value={icon} 
                 onChange={setIcon} 
                 placeholder="https://..." 
                 type="url"
-                help="Optional image displayed to the customer."
+                help="Optional link to your business logo."
               />
             </div>
           </section>
 
-          {/* Step 2: Internal Records */}
+          {/* Internal Records */}
           <section className="premium-panel p-8 space-y-8 border-t-2 border-t-purple-500">
             <div>
               <h3 className="text-white font-black uppercase text-sm italic flex items-center gap-2">
-                <i className="fa-solid fa-user-shield text-purple-400"></i> 2. Internal Records
+                <i className="fa-solid fa-lock text-purple-400"></i> 2. Private Records
               </h3>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Encrypted. Only you can ever see this.</p>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Encrypted. Hidden from the blockchain.</p>
             </div>
 
             <div className="space-y-6">
               <InputGroup 
-                label="Internal Reference Title" 
+                label="Internal Project Title" 
                 value={title} 
                 onChange={setTitle} 
-                placeholder="e.g. Project Alpha - Phase 1" 
+                placeholder="e.g. Logo Design for Client X" 
               />
               
               <div className="space-y-3">
@@ -146,7 +154,7 @@ const CreateRequestView: React.FC<CreateRequestViewProps> = ({ profile }) => {
                     <div key={idx} className="flex gap-2">
                       <input 
                         type="text" 
-                        placeholder="Item name"
+                        placeholder="Description"
                         value={item.description}
                         onChange={(e) => updateLineItem(idx, 'description', e.target.value)}
                         className="flex-[2] bg-black/40 border border-white/10 px-4 py-2.5 rounded-xl text-white font-bold text-xs outline-none focus:border-purple-500/30"
@@ -164,11 +172,11 @@ const CreateRequestView: React.FC<CreateRequestViewProps> = ({ profile }) => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Private Notes</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Confidential Notes</label>
                 <textarea 
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Extra info for your eyes only..."
+                  placeholder="Notes for your own bookkeeping..."
                   className="w-full h-24 bg-black/40 border border-white/10 px-4 py-3 rounded-xl text-white font-medium text-xs outline-none focus:border-purple-500/30 resize-none"
                 />
               </div>
@@ -188,10 +196,6 @@ const CreateRequestView: React.FC<CreateRequestViewProps> = ({ profile }) => {
                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">{label || 'Unnamed Request'}</p>
                </div>
             </div>
-            <div className="hidden lg:block h-10 w-px bg-white/5"></div>
-            <p className="hidden lg:block text-[10px] text-slate-500 font-bold uppercase tracking-widest max-w-[200px]">
-              Clicking "Create" will encrypt your records and generate a unique payment link.
-            </p>
           </div>
 
           <button 
@@ -199,7 +203,7 @@ const CreateRequestView: React.FC<CreateRequestViewProps> = ({ profile }) => {
             disabled={loading}
             className="w-full md:w-auto px-12 py-5 bg-[#00D1FF] text-black rounded-2xl font-black italic text-xl hover:scale-[1.05] transition-all shadow-[0_15px_40px_rgba(0,209,255,0.2)] flex items-center justify-center gap-4 disabled:opacity-50"
           >
-            {loading ? <i className="fa-solid fa-circle-notch animate-spin"></i> : <><i className="fa-solid fa-bolt"></i> CREATE LINK</>}
+            {loading ? <i className="fa-solid fa-circle-notch animate-spin"></i> : <><i className="fa-solid fa-link"></i> CREATE PAYMENT LINK</>}
           </button>
         </div>
       </form>
