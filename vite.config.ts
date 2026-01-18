@@ -1,3 +1,4 @@
+
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
@@ -10,15 +11,14 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      // Fix for @solana/web3.js dependency resolution in Vite/Rollup
-      // Many versions of web3.js try to import the .js file directly, which fails 
-      // when the rpc-websockets package.json only exports the path without the extension.
-      'rpc-websockets/dist/lib/client.js': 'rpc-websockets/dist/lib/client',
-      'rpc-websockets': 'rpc-websockets/dist/lib/client',
+      // Direct fix for the common Solana web3.js + Vite build error.
+      // We map the problematic deep import string used internally by dependencies
+      // to the top-level package, which Vite can resolve using the browser entry point.
+      'rpc-websockets/dist/lib/client': 'rpc-websockets',
     },
   },
   optimizeDeps: {
-    include: ['rpc-websockets'],
+    include: ['rpc-websockets', '@solana/web3.js'],
   },
   build: {
     commonjsOptions: {
