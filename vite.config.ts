@@ -10,10 +10,15 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      // Fix for @solana/web3.js dependency resolution
-      // The .js extension is required to bypass the package exports map
-      'rpc-websockets': 'rpc-websockets/dist/lib/client.js',
+      // Fix for @solana/web3.js dependency resolution in Vite/Rollup
+      // Many versions of web3.js try to import the .js file directly, which fails 
+      // when the rpc-websockets package.json only exports the path without the extension.
+      'rpc-websockets/dist/lib/client.js': 'rpc-websockets/dist/lib/client',
+      'rpc-websockets': 'rpc-websockets/dist/lib/client',
     },
+  },
+  optimizeDeps: {
+    include: ['rpc-websockets'],
   },
   build: {
     commonjsOptions: {
