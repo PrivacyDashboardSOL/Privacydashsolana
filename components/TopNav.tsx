@@ -108,15 +108,6 @@ const TopNav: React.FC<TopNavProps> = ({
 
       {/* Tools */}
       <div className="flex items-center gap-4 shrink-0">
-        {/* Network Toggle */}
-        <button 
-          onClick={toggleNetwork}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/20 transition-all text-[10px] font-black uppercase tracking-widest ${network === 'mainnet-beta' ? 'text-amber-500' : 'text-purple-400'}`}
-        >
-          <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${network === 'mainnet-beta' ? 'bg-amber-500' : 'bg-purple-400'}`}></div>
-          {network === 'mainnet-beta' ? 'Mainnet' : 'Devnet'}
-        </button>
-
         <div className="relative w-40 lg:w-56 hidden md:block">
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">
             {ICONS.Search}
@@ -154,8 +145,17 @@ const TopNav: React.FC<TopNavProps> = ({
                   <div className="p-4 border-b border-white/5 bg-white/2 rounded-t-xl">
                     <div className="flex justify-between items-start mb-4">
                       <p className="text-[10px] font-black text-[#00D1FF] uppercase tracking-[0.2em]">Active Session</p>
-                      <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                      
+                      {/* Network Toggle relocated here */}
+                      <button 
+                        onClick={toggleNetwork}
+                        className={`flex items-center gap-2 px-2 py-1 rounded-md border border-white/10 hover:border-white/20 transition-all text-[8px] font-black uppercase tracking-widest ${network === 'mainnet-beta' ? 'text-amber-500' : 'text-purple-400'}`}
+                      >
+                        <div className={`w-1 h-1 rounded-full animate-pulse ${network === 'mainnet-beta' ? 'bg-amber-500' : 'bg-purple-400'}`}></div>
+                        {network === 'mainnet-beta' ? 'Mainnet' : 'Devnet'}
+                      </button>
                     </div>
+
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 rounded-xl bg-black border border-white/10 flex items-center justify-center text-[#00D1FF]">
                         <i className="fa-solid fa-wallet"></i>
